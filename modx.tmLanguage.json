@@ -9,25 +9,38 @@
     "L:source.modx": {
       "patterns": [
         {
-          "include": "#modx"
+          "include": "#interpolation"
         }
       ]
     }
   },
   "patterns": [
     {
-      "include": "#modx-comment"
-    },
-    {
-      "include": "#modx"
+      "include": "#interpolation"
     },
     {
       "include": "text.html.basic"
     }
   ],
   "repository": {
-    "modx": {
-      "begin": "(\\[\\[)(!?)([\\x{0025}\\x{002a}\\x{007e}\\$]?\\+{0,2})([-_a-zA-Z0-9\\.]*)((@[-_a-zA-Z0-9\\.]+)?)",
+    "interpolation": {
+      "patterns": [
+        {
+          "include": "#comment"
+        },
+        {
+          "include": "#main"
+        },
+        {
+          "include": "#timing-tags"
+        },
+        {
+          "include": "#integer"
+        }
+      ]
+    },
+    "main": {
+      "begin": "(\\[\\[)(!?)([\\x{0025}\\x{002a}\\x{007e}\\$]?\\+{0,2})([-_a-zA-Z0-9\\.]*)",
       "beginCaptures": {
         "1": {
           "name": "punctuation.definition.tag.begin.modx"
@@ -40,20 +53,28 @@
         },
         "4": {
           "name": "entity.name.function.modx"
-        },
-        "5": {
-          "name": "entity.name.modx"
         }
       },
       "patterns": [
         {
-          "include": "#modx-modifier"
+          "include": "#propertyset"
         },
         {
-          "include": "#modx-attribute"
+          "include": "#modifier"
         },
         {
-          "include": "#modx-value"
+          "include": "#attribute"
+        },
+        {
+          "include": "#value"
+        },
+        {
+          "patterns": [
+            {
+              "match": "\\?",
+              "name": "punctuation.modx"
+            }
+          ]
         }
       ],
       "end": "(\\]\\])",
@@ -63,7 +84,15 @@
         }
       }
     },
-    "modx-modifier": {
+    "propertyset": {
+      "patterns": [
+        {
+          "match": "@[-_a-zA-Z0-9\\.]+",
+          "name": "entity.name.modx"
+        }
+      ]
+    },
+    "modifier": {
       "patterns": [
         {
           "match": "(:[-_a-zA-Z0-9\\.]+)",
@@ -71,72 +100,47 @@
         }
       ]
     },
-    "modx-attribute": {
+    "attribute": {
       "patterns": [
         {
-          "begin": "(\\&)",
-          "beginCaptures": {
-            "1": {
-              "name": "keyword.other.modx"
-            }
-          },
-          "patterns": [
-            {
-              "match": "([-_a-zA-Z0-9\\.]+)?",
-              "name": "variable.object.property.modx"
-            }
-          ],
-          "end": "(?=\\=)",
-          "endCaptures": {
-            "1": {
-              "name": "keyword.other.modx"
-            }
-          }
+          "begin": "\\&",
+          "name": "keyword.other.modx",
+          "contentName": "variable.object.property.modx",
+          "end": "\\="
         }
       ]
     },
-    "modx-value": {
+    "value": {
       "patterns": [
         {
-          "begin": "(\\`)",
-          "beginCaptures": {
-            "1": {
-              "name": "string.quoted.docstring.modx"
-            }
-          },
+          "begin": "\\`",
+          "name": "constant.character.escape",
           "patterns": [
             {
-              "include": "#modx"
-            },
-            {
-              "include": "#integer"
+              "include": "#interpolation"
             }
           ],
-          "end": "(\\`)",
-          "endCaptures": {
-            "1": {
-              "name": "string.quoted.docstring.modx"
-            }
-          }
+          "end": "\\`"
         }
       ]
     },
-    "modx-comment": {
+    "comment": {
       "patterns": [
         {
-          "begin": "(\\[\\[\\-\\s?)",
-          "beginCaptures": {
-            "1": {
-              "name": "comment.modx"
-            }
-          },
+          "begin": "\\[\\[\\-\\s?",
+          "name": "comment.modx",
           "contentName": "comment.modx",
-          "end": "(\\]\\]$)",
-          "endCaptures": {
-            "1": {
-              "name": "comment.modx"
-            }
-          }
+          "end": "\\]\\]$"
+        }
+      ]
+    },
+    "timing-tags": {
+      "patterns": [
+        {
+          "begin": "\\[\\^",
+          "name": "punctuation.modx",
+          "contentName": "string",
+          "end": "\\^\\]"
         }
       ]
     },
