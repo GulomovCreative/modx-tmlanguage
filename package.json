@@ -17,6 +17,6 @@
     "type": "git",
     "url": "https://github.com/GulomovCreative/modx-tmlanguage.git"
   },
-  "keywords": [],
+  "keywords": ["modx", "MODX", "TextMate", "syntax"],
   "license": "MIT"
 }
