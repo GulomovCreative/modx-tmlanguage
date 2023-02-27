@@ -1,0 +1,152 @@
+{
+  "name": "modx",
+  "scopeName": "source.modx",
+  "fileTypes": [
+    "tpl",
+    "html"
+  ],
+  "injections": {
+    "L:source.modx": {
+      "patterns": [
+        {
+          "include": "#modx"
+        }
+      ]
+    }
+  },
+  "patterns": [
+    {
+      "include": "#modx-comment"
+    },
+    {
+      "include": "#modx"
+    },
+    {
+      "include": "text.html.basic"
+    }
+  ],
+  "repository": {
+    "modx": {
+      "begin": "(\\[\\[)(!?)([\\x{0025}\\x{002a}\\x{007e}\\$]?\\+{0,2})([-_a-zA-Z0-9\\.]*)((@[-_a-zA-Z0-9\\.]+)?)",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.modx"
+        },
+        "2": {
+          "name": "constant.other.key.modx"
+        },
+        "3": {
+          "name": "support.type.modx"
+        },
+        "4": {
+          "name": "entity.name.function.modx"
+        },
+        "5": {
+          "name": "entity.name.modx"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#modx-modifier"
+        },
+        {
+          "include": "#modx-attribute"
+        },
+        {
+          "include": "#modx-value"
+        }
+      ],
+      "end": "(\\]\\])",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.end.modx"
+        }
+      }
+    },
+    "modx-modifier": {
+      "patterns": [
+        {
+          "match": "(:[-_a-zA-Z0-9\\.]+)",
+          "name": "modifier.modx"
+        }
+      ]
+    },
+    "modx-attribute": {
+      "patterns": [
+        {
+          "begin": "(\\&)",
+          "beginCaptures": {
+            "1": {
+              "name": "keyword.other.modx"
+            }
+          },
+          "patterns": [
+            {
+              "match": "([-_a-zA-Z0-9\\.]+)?",
+              "name": "variable.object.property.modx"
+            }
+          ],
+          "end": "(?=\\=)",
+          "endCaptures": {
+            "1": {
+              "name": "keyword.other.modx"
+            }
+          }
+        }
+      ]
+    },
+    "modx-value": {
+      "patterns": [
+        {
+          "begin": "(\\`)",
+          "beginCaptures": {
+            "1": {
+              "name": "string.quoted.docstring.modx"
+            }
+          },
+          "patterns": [
+            {
+              "include": "#modx"
+            },
+            {
+              "include": "#integer"
+            }
+          ],
+          "end": "(\\`)",
+          "endCaptures": {
+            "1": {
+              "name": "string.quoted.docstring.modx"
+            }
+          }
+        }
+      ]
+    },
+    "modx-comment": {
+      "patterns": [
+        {
+          "begin": "(\\[\\[\\-\\s?)",
+          "beginCaptures": {
+            "1": {
+              "name": "comment.modx"
+            }
+          },
+          "contentName": "comment.modx",
+          "end": "(\\]\\]$)",
+          "endCaptures": {
+            "1": {
+              "name": "comment.modx"
+            }
+          }
+        }
+      ]
+    },
+    "integer": {
+      "patterns": [
+        {
+          "name": "constant.numeric.modx",
+          "match": "\\d"
+        }
+      ]
+    }
+  }
+}

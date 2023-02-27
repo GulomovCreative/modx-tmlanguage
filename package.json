@@ -1,0 +1,22 @@
+{
+  "name": "@gulomov/modx-tmlanguage",
+  "version": "1.0.0",
+  "description": "TextMate grammar files for MODX Revolution syntax for VS Code, Sublime Text, and Atom",
+  "author": {
+    "name": "Gulomov Bakhtovar",
+    "email": "gulomovcreative@gmail.com"
+  },
+  "main": "index.js",
+  "scripts": {
+    "publish:major": "npm version major",
+    "publish:minor": "npm version minor",
+    "publish:patch": "npm version patch",
+    "postversion": "git push && git push --tags && npm publish"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GulomovCreative/modx-tmlanguage.git"
+  },
+  "keywords": [],
+  "license": "MIT"
+}
