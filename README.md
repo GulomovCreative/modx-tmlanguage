@@ -4,5 +4,5 @@ This repository contains TmLanguage files that can be consumed by [MODX Revoluti
 
 ## Installation
 ``` sh
-npm install @gulomov/modx-tmlanguage
+npm install modx-tmlanguage
 ```

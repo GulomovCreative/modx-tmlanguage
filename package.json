@@ -1,5 +1,5 @@
 {
-  "name": "@gulomov/modx-tmlanguage",
+  "name": "modx-tmlanguage",
   "version": "1.0.0",
   "description": "TextMate grammar files for MODX Revolution syntax for VS Code, Sublime Text, and Atom",
   "author": {
