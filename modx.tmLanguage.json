@@ -1,12 +1,12 @@
 {
   "name": "modx",
-  "scopeName": "source.modx",
+  "scopeName": "text.html.modx",
   "fileTypes": [
     "tpl",
     "html"
   ],
   "injections": {
-    "L:source.modx": {
+    "L:text.html.modx": {
       "patterns": [
         {
           "include": "#interpolation"
@@ -24,6 +24,7 @@
   ],
   "repository": {
     "interpolation": {
+      "name": "source.modx",
       "patterns": [
         {
           "include": "#comment"
