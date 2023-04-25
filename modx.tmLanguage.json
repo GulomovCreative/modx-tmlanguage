@@ -149,7 +149,7 @@
       "patterns": [
         {
           "name": "constant.numeric.modx",
-          "match": "\\d"
+          "match": "(?<![a-zA-Z])(-?([0-9]*[.])?[0-9]+)(?![\\.a-zA-Z])"
         }
       ]
     }
