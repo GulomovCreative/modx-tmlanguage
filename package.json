@@ -7,6 +7,9 @@
     "email": "gulomovcreative@gmail.com"
   },
   "main": "index.js",
+  "exports": {
+    ".": "./modx.tmLanguage.json"
+  },
   "scripts": {
     "publish:major": "npm version major",
     "publish:minor": "npm version minor",
