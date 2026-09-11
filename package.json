@@ -10,7 +10,14 @@
   "exports": {
     ".": "./modx.tmLanguage.json"
   },
+  "files": [
+    "modx.tmLanguage.json",
+    "index.js"
+  ],
   "scripts": {
+    "test": "node --test test/grammar.test.js",
+    "test:update": "node test/snapshot.js",
+    "prepublishOnly": "npm test",
     "publish:major": "npm version major",
     "publish:minor": "npm version minor",
     "publish:patch": "npm version patch",
@@ -26,5 +33,9 @@
     "TextMate",
     "syntax"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "vscode-oniguruma": "^2.0.1",
+    "vscode-textmate": "^9.3.2"
+  }
 }

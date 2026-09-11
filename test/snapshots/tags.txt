@@ -1,0 +1,113 @@
+line 1: "[[Snippet]]"
+  "[["                         text.html.modx meta.tag.modx punctuation.definition.tag.begin.modx
+  "Snippet"                    text.html.modx meta.tag.modx entity.name.function.modx
+  "]]"                         text.html.modx meta.tag.modx punctuation.definition.tag.end.modx
+line 2: "[[!pdoResources@myProperties? &parents=`5` &limit=`10` &tpl=`row` &depth=2]]"
+  "[["                         text.html.modx meta.tag.modx punctuation.definition.tag.begin.modx
+  "!"                          text.html.modx meta.tag.modx keyword.control.uncached.modx
+  "pdoResources"               text.html.modx meta.tag.modx entity.name.function.modx
+  "@"                          text.html.modx meta.tag.modx punctuation.definition.propertyset.modx
+  "myProperties"               text.html.modx meta.tag.modx entity.name.type.propertyset.modx
+  "?"                          text.html.modx meta.tag.modx punctuation.separator.properties.modx
+  " "                          text.html.modx meta.tag.modx
+  "&"                          text.html.modx meta.tag.modx punctuation.definition.parameter.modx
+  "parents"                    text.html.modx meta.tag.modx variable.parameter.modx
+  "="                          text.html.modx meta.tag.modx keyword.operator.assignment.modx
+  "`"                          text.html.modx meta.tag.modx string.other.modx punctuation.definition.string.begin.modx
+  "5"                          text.html.modx meta.tag.modx string.other.modx constant.numeric.modx
+  "`"                          text.html.modx meta.tag.modx string.other.modx punctuation.definition.string.end.modx
+  " "                          text.html.modx meta.tag.modx
+  "&"                          text.html.modx meta.tag.modx punctuation.definition.parameter.modx
+  "limit"                      text.html.modx meta.tag.modx variable.parameter.modx
+  "="                          text.html.modx meta.tag.modx keyword.operator.assignment.modx
+  "`"                          text.html.modx meta.tag.modx string.other.modx punctuation.definition.string.begin.modx
+  "10"                         text.html.modx meta.tag.modx string.other.modx constant.numeric.modx
+  "`"                          text.html.modx meta.tag.modx string.other.modx punctuation.definition.string.end.modx
+  " "                          text.html.modx meta.tag.modx
+  "&"                          text.html.modx meta.tag.modx punctuation.definition.parameter.modx
+  "tpl"                        text.html.modx meta.tag.modx variable.parameter.modx
+  "="                          text.html.modx meta.tag.modx keyword.operator.assignment.modx
+  "`"                          text.html.modx meta.tag.modx string.other.modx punctuation.definition.string.begin.modx
+  "row"                        text.html.modx meta.tag.modx string.other.modx
+  "`"                          text.html.modx meta.tag.modx string.other.modx punctuation.definition.string.end.modx
+  " "                          text.html.modx meta.tag.modx
+  "&"                          text.html.modx meta.tag.modx punctuation.definition.parameter.modx
+  "depth"                      text.html.modx meta.tag.modx variable.parameter.modx
+  "="                          text.html.modx meta.tag.modx keyword.operator.assignment.modx
+  "2"                          text.html.modx meta.tag.modx constant.numeric.modx
+  "]]"                         text.html.modx meta.tag.modx punctuation.definition.tag.end.modx
+line 3: "[[*pagetitle]] [[$chunk]] [[~12]] [[%lexicon.key]] [[+placeholder]] [[++system_setting]]"
+  "[["                         text.html.modx meta.tag.modx punctuation.definition.tag.begin.modx
+  "*"                          text.html.modx meta.tag.modx support.type.modx
+  "pagetitle"                  text.html.modx meta.tag.modx entity.name.function.modx
+  "]]"                         text.html.modx meta.tag.modx punctuation.definition.tag.end.modx
+  " "                          text.html.modx
+  "[["                         text.html.modx meta.tag.modx punctuation.definition.tag.begin.modx
+  "$"                          text.html.modx meta.tag.modx support.type.modx
+  "chunk"                      text.html.modx meta.tag.modx entity.name.function.modx
+  "]]"                         text.html.modx meta.tag.modx punctuation.definition.tag.end.modx
+  " "                          text.html.modx
+  "[["                         text.html.modx meta.tag.modx punctuation.definition.tag.begin.modx
+  "~"                          text.html.modx meta.tag.modx support.type.modx
+  "12"                         text.html.modx meta.tag.modx entity.name.function.modx
+  "]]"                         text.html.modx meta.tag.modx punctuation.definition.tag.end.modx
+  " "                          text.html.modx
+  "[["                         text.html.modx meta.tag.modx punctuation.definition.tag.begin.modx
+  "%"                          text.html.modx meta.tag.modx support.type.modx
+  "lexicon.key"                text.html.modx meta.tag.modx entity.name.function.modx
+  "]]"                         text.html.modx meta.tag.modx punctuation.definition.tag.end.modx
+  " "                          text.html.modx
+  "[["                         text.html.modx meta.tag.modx punctuation.definition.tag.begin.modx
+  "+"                          text.html.modx meta.tag.modx support.type.modx
+  "placeholder"                text.html.modx meta.tag.modx entity.name.function.modx
+  "]]"                         text.html.modx meta.tag.modx punctuation.definition.tag.end.modx
+  " "                          text.html.modx
+  "[["                         text.html.modx meta.tag.modx punctuation.definition.tag.begin.modx
+  "++"                         text.html.modx meta.tag.modx support.type.modx
+  "system_setting"             text.html.modx meta.tag.modx entity.name.function.modx
+  "]]"                         text.html.modx meta.tag.modx punctuation.definition.tag.end.modx
+line 4: "[[+pagetitle:ellipsis=`40`:htmlent]]"
+  "[["                         text.html.modx meta.tag.modx punctuation.definition.tag.begin.modx
+  "+"                          text.html.modx meta.tag.modx support.type.modx
+  "pagetitle"                  text.html.modx meta.tag.modx entity.name.function.modx
+  ":"                          text.html.modx meta.tag.modx punctuation.separator.modifier.modx
+  "ellipsis"                   text.html.modx meta.tag.modx support.function.modifier.modx
+  "="                          text.html.modx meta.tag.modx keyword.operator.assignment.modx
+  "`"                          text.html.modx meta.tag.modx string.other.modx punctuation.definition.string.begin.modx
+  "40"                         text.html.modx meta.tag.modx string.other.modx constant.numeric.modx
+  "`"                          text.html.modx meta.tag.modx string.other.modx punctuation.definition.string.end.modx
+  ":"                          text.html.modx meta.tag.modx punctuation.separator.modifier.modx
+  "htmlent"                    text.html.modx meta.tag.modx support.function.modifier.modx
+  "]]"                         text.html.modx meta.tag.modx punctuation.definition.tag.end.modx
+line 5: "[[!Snippet? &flag &other=`1`]]"
+  "[["                         text.html.modx meta.tag.modx punctuation.definition.tag.begin.modx
+  "!"                          text.html.modx meta.tag.modx keyword.control.uncached.modx
+  "Snippet"                    text.html.modx meta.tag.modx entity.name.function.modx
+  "?"                          text.html.modx meta.tag.modx punctuation.separator.properties.modx
+  " "                          text.html.modx meta.tag.modx
+  "&"                          text.html.modx meta.tag.modx punctuation.definition.parameter.modx
+  "flag"                       text.html.modx meta.tag.modx variable.parameter.modx
+  " "                          text.html.modx meta.tag.modx
+  "&"                          text.html.modx meta.tag.modx punctuation.definition.parameter.modx
+  "other"                      text.html.modx meta.tag.modx variable.parameter.modx
+  "="                          text.html.modx meta.tag.modx keyword.operator.assignment.modx
+  "`"                          text.html.modx meta.tag.modx string.other.modx punctuation.definition.string.begin.modx
+  "1"                          text.html.modx meta.tag.modx string.other.modx constant.numeric.modx
+  "`"                          text.html.modx meta.tag.modx string.other.modx punctuation.definition.string.end.modx
+  "]]"                         text.html.modx meta.tag.modx punctuation.definition.tag.end.modx
+line 6: "[[+ph? &nested=`[[*id]]`]]"
+  "[["                         text.html.modx meta.tag.modx punctuation.definition.tag.begin.modx
+  "+"                          text.html.modx meta.tag.modx support.type.modx
+  "ph"                         text.html.modx meta.tag.modx entity.name.function.modx
+  "?"                          text.html.modx meta.tag.modx punctuation.separator.properties.modx
+  " "                          text.html.modx meta.tag.modx
+  "&"                          text.html.modx meta.tag.modx punctuation.definition.parameter.modx
+  "nested"                     text.html.modx meta.tag.modx variable.parameter.modx
+  "="                          text.html.modx meta.tag.modx keyword.operator.assignment.modx
+  "`"                          text.html.modx meta.tag.modx string.other.modx punctuation.definition.string.begin.modx
+  "[["                         text.html.modx meta.tag.modx string.other.modx meta.tag.modx punctuation.definition.tag.begin.modx
+  "*"                          text.html.modx meta.tag.modx string.other.modx meta.tag.modx support.type.modx
+  "id"                         text.html.modx meta.tag.modx string.other.modx meta.tag.modx entity.name.function.modx
+  "]]"                         text.html.modx meta.tag.modx string.other.modx meta.tag.modx punctuation.definition.tag.end.modx
+  "`"                          text.html.modx meta.tag.modx string.other.modx punctuation.definition.string.end.modx
+  "]]"                         text.html.modx meta.tag.modx punctuation.definition.tag.end.modx

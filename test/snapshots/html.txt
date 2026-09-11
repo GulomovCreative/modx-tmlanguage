@@ -1,0 +1,18 @@
+line 1: "<div class=\"col-6\" data-id=\"42\">v1.2.0</div>"
+  "<div class=\"col-6\" data-id=\"42\">v1.2.0</div>" text.html.modx
+line 2: "<p>Tom &amp; Jerry, 5 &lt; 7</p>"
+  "<p>Tom &amp; Jerry, 5 &lt; 7</p>" text.html.modx
+line 3: "<a href=\"/page?id=3&amp;sort=1\">ссылка</a>"
+  "<a href=\"/page?id=3&amp;sort=1\">ссылка</a>" text.html.modx
+line 4: "[^qt^] [^t^] [^s^]"
+  "[^"                         text.html.modx meta.tag.timing.modx punctuation.definition.tag.begin.modx
+  "qt"                         text.html.modx meta.tag.timing.modx constant.other.timing.modx
+  "^]"                         text.html.modx meta.tag.timing.modx punctuation.definition.tag.end.modx
+  " "                          text.html.modx
+  "[^"                         text.html.modx meta.tag.timing.modx punctuation.definition.tag.begin.modx
+  "t"                          text.html.modx meta.tag.timing.modx constant.other.timing.modx
+  "^]"                         text.html.modx meta.tag.timing.modx punctuation.definition.tag.end.modx
+  " "                          text.html.modx
+  "[^"                         text.html.modx meta.tag.timing.modx punctuation.definition.tag.begin.modx
+  "s"                          text.html.modx meta.tag.timing.modx constant.other.timing.modx
+  "^]"                         text.html.modx meta.tag.timing.modx punctuation.definition.tag.end.modx
