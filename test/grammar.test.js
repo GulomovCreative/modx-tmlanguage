@@ -150,6 +150,31 @@ test('законный многострочный тег не ломается',
   );
 });
 
+// --- Ложные срабатывания на [[ ---------------------------------------------
+
+test('голая [[ в строке не открывает тег', async () => {
+  for (const source of ['a { content: "[["; }', 'var s = "[[";']) {
+    const tokenized = await tokenize(source);
+    assert.deepEqual(
+      tokensWithScope(tokenized, 'meta.tag'),
+      [],
+      source + ' — не должно разбираться как тег'
+    );
+  }
+});
+
+test('законные формы имени сохранены', async () => {
+  // Парсер делает trim() над именем, поэтому пробелы внутри скобок допустимы.
+  // Имя может быть и вложенным тегом — это динамический вызов.
+  for (const source of ['[[Snippet]]', '[[ Snippet ]]', '[[[[+dynamicName]]]]', '[[$[[+chunkName]]]]']) {
+    const tokenized = await tokenize(source);
+    assert.ok(
+      tokensWithScope(tokenized, 'meta.tag').length > 0,
+      source + ' — должно оставаться тегом'
+    );
+  }
+});
+
 // --- Синтаксис из исходника парсера ---------------------------------------
 // Каждый случай сверен с core/src/Revolution/modParser.php.
 

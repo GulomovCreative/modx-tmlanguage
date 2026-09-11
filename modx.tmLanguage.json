@@ -237,7 +237,7 @@
     },
     "tag-snippet": {
       "name": "meta.tag.snippet.modx",
-      "begin": "(\\[\\[)(!?)([-_a-zA-Z0-9\\.]*)",
+      "begin": "(\\[\\[)(!?)\\s*(?=[-_a-zA-Z0-9.]|\\[\\[)([-_a-zA-Z0-9\\.]*)",
       "beginCaptures": {
         "1": {
           "name": "punctuation.definition.tag.begin.modx"
