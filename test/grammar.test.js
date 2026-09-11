@@ -207,6 +207,20 @@ test('все scope начинаются с корня, известного те
   assert.deepEqual(bad, [], 'эти scope темы не подсветят: ' + bad.join(', '));
 });
 
+test('каждый scope задокументирован в README', () => {
+  // Без этой проверки таблица в README протухнет на первой же правке
+  // грамматики: новый scope просто не попадёт в документацию.
+  const grammar = JSON.parse(fs.readFileSync(GRAMMAR_PATH, 'utf8'));
+  const readme = fs.readFileSync(path.resolve(__dirname, '..', 'README.md'), 'utf8');
+  const names = [...new Set(collectScopeNames([grammar.patterns, grammar.repository, grammar.injections]))];
+  const undocumented = names.filter((name) => !readme.includes(name)).sort();
+  assert.deepEqual(
+    undocumented,
+    [],
+    'нет в README — допишите в раздел Scopes: ' + undocumented.join(', ')
+  );
+});
+
 test('грамматика — валидный JSON и index.js указывает на неё', () => {
   const grammar = JSON.parse(fs.readFileSync(GRAMMAR_PATH, 'utf8'));
   assert.equal(grammar.scopeName, 'text.html.modx');
