@@ -1,0 +1,6 @@
+[[Snippet]]
+[[!pdoResources@myProperties? &parents=`5` &limit=`10` &tpl=`row` &depth=2]]
+[[*pagetitle]] [[$chunk]] [[~12]] [[%lexicon.key]] [[+placeholder]] [[++system_setting]]
+[[+pagetitle:ellipsis=`40`:htmlent]]
+[[!Snippet? &flag &other=`1`]]
+[[+ph? &nested=`[[*id]]`]]

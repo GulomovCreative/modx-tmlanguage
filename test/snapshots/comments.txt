@@ -1,0 +1,35 @@
+line 1: "[[- однострочный комментарий ]]"
+  "[[- "                       text.html.modx comment.block.modx punctuation.definition.comment.begin.modx
+  "однострочный комментарий "  text.html.modx comment.block.modx
+  "]]"                         text.html.modx comment.block.modx punctuation.definition.comment.end.modx
+line 2: "[[- комментарий ]] код после него: [[*id]]"
+  "[[- "                       text.html.modx comment.block.modx punctuation.definition.comment.begin.modx
+  "комментарий "               text.html.modx comment.block.modx
+  "]]"                         text.html.modx comment.block.modx punctuation.definition.comment.end.modx
+  " код после него: "          text.html.modx
+  "[["                         text.html.modx meta.tag.modx punctuation.definition.tag.begin.modx
+  "*"                          text.html.modx meta.tag.modx support.type.modx
+  "id"                         text.html.modx meta.tag.modx entity.name.function.modx
+  "]]"                         text.html.modx meta.tag.modx punctuation.definition.tag.end.modx
+line 3: "[[- многострочный"
+  "[[- "                       text.html.modx comment.block.modx punctuation.definition.comment.begin.modx
+  "многострочный"              text.html.modx comment.block.modx
+line 4: "комментарий, внутри тег [[+ph]] и цифра 42"
+  "комментарий, внутри тег "   text.html.modx comment.block.modx
+  "[["                         text.html.modx comment.block.modx
+  "+ph"                        text.html.modx comment.block.modx
+  "]]"                         text.html.modx comment.block.modx
+  " и цифра 42"                text.html.modx comment.block.modx
+line 5: "всё ещё комментарий ]] а тут уже нет"
+  "всё ещё комментарий "       text.html.modx comment.block.modx
+  "]]"                         text.html.modx comment.block.modx punctuation.definition.comment.end.modx
+  " а тут уже нет"             text.html.modx
+line 6: "[[- внешний [[- внутренний ]] снова внешний ]] хвост"
+  "[[- "                       text.html.modx comment.block.modx punctuation.definition.comment.begin.modx
+  "внешний "                   text.html.modx comment.block.modx
+  "[["                         text.html.modx comment.block.modx
+  "- внутренний "              text.html.modx comment.block.modx
+  "]]"                         text.html.modx comment.block.modx
+  " снова внешний "            text.html.modx comment.block.modx
+  "]]"                         text.html.modx comment.block.modx punctuation.definition.comment.end.modx
+  " хвост"                     text.html.modx
