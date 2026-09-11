@@ -37,8 +37,33 @@
       ]
     },
     "main": {
-      "name": "meta.tag.modx",
-      "begin": "(\\[\\[)(!?)([\\x{0025}\\x{002a}\\x{007e}\\$]?\\+{0,2})([-_a-zA-Z0-9\\.]*)",
+      "patterns": [
+        {
+          "include": "#tag-setting"
+        },
+        {
+          "include": "#tag-placeholder"
+        },
+        {
+          "include": "#tag-chunk"
+        },
+        {
+          "include": "#tag-field"
+        },
+        {
+          "include": "#tag-link"
+        },
+        {
+          "include": "#tag-lexicon"
+        },
+        {
+          "include": "#tag-snippet"
+        }
+      ]
+    },
+    "tag-setting": {
+      "name": "meta.tag.setting.modx",
+      "begin": "(\\[\\[)(!?)(\\+\\+)([-_a-zA-Z0-9\\.]*)",
       "beginCaptures": {
         "1": {
           "name": "punctuation.definition.tag.begin.modx"
@@ -47,12 +72,196 @@
           "name": "keyword.control.uncached.modx"
         },
         "3": {
-          "name": "support.type.modx"
+          "name": "support.type.setting.modx"
         },
         "4": {
+          "name": "variable.other.setting.modx"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#tag-body"
+        }
+      ],
+      "end": "(\\]\\])",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.end.modx"
+        }
+      }
+    },
+    "tag-placeholder": {
+      "name": "meta.tag.placeholder.modx",
+      "begin": "(\\[\\[)(!?)(\\+)([-_a-zA-Z0-9\\.]*)",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.modx"
+        },
+        "2": {
+          "name": "keyword.control.uncached.modx"
+        },
+        "3": {
+          "name": "support.type.placeholder.modx"
+        },
+        "4": {
+          "name": "variable.other.placeholder.modx"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#tag-body"
+        }
+      ],
+      "end": "(\\]\\])",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.end.modx"
+        }
+      }
+    },
+    "tag-chunk": {
+      "name": "meta.tag.chunk.modx",
+      "begin": "(\\[\\[)(!?)(\\$)([-_a-zA-Z0-9\\.]*)",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.modx"
+        },
+        "2": {
+          "name": "keyword.control.uncached.modx"
+        },
+        "3": {
+          "name": "support.type.chunk.modx"
+        },
+        "4": {
+          "name": "entity.name.type.chunk.modx"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#tag-body"
+        }
+      ],
+      "end": "(\\]\\])",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.end.modx"
+        }
+      }
+    },
+    "tag-field": {
+      "name": "meta.tag.field.modx",
+      "begin": "(\\[\\[)(!?)(\\*)([-_a-zA-Z0-9\\.]*)",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.modx"
+        },
+        "2": {
+          "name": "keyword.control.uncached.modx"
+        },
+        "3": {
+          "name": "support.type.field.modx"
+        },
+        "4": {
+          "name": "variable.other.resource.modx"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#tag-body"
+        }
+      ],
+      "end": "(\\]\\])",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.end.modx"
+        }
+      }
+    },
+    "tag-link": {
+      "name": "meta.tag.link.modx",
+      "begin": "(\\[\\[)(!?)(\\~)([-_a-zA-Z0-9\\.]*)",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.modx"
+        },
+        "2": {
+          "name": "keyword.control.uncached.modx"
+        },
+        "3": {
+          "name": "support.type.link.modx"
+        },
+        "4": {
+          "name": "constant.other.link.modx"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#tag-body"
+        }
+      ],
+      "end": "(\\]\\])",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.end.modx"
+        }
+      }
+    },
+    "tag-lexicon": {
+      "name": "meta.tag.lexicon.modx",
+      "begin": "(\\[\\[)(!?)(\\%)([-_a-zA-Z0-9\\.]*)",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.modx"
+        },
+        "2": {
+          "name": "keyword.control.uncached.modx"
+        },
+        "3": {
+          "name": "support.type.lexicon.modx"
+        },
+        "4": {
+          "name": "variable.other.lexicon.modx"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#tag-body"
+        }
+      ],
+      "end": "(\\]\\])",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.end.modx"
+        }
+      }
+    },
+    "tag-snippet": {
+      "name": "meta.tag.snippet.modx",
+      "begin": "(\\[\\[)(!?)([-_a-zA-Z0-9\\.]*)",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.modx"
+        },
+        "2": {
+          "name": "keyword.control.uncached.modx"
+        },
+        "3": {
           "name": "entity.name.function.modx"
         }
       },
+      "patterns": [
+        {
+          "include": "#tag-body"
+        }
+      ],
+      "end": "(\\]\\])",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.end.modx"
+        }
+      }
+    },
+    "tag-body": {
       "patterns": [
         {
           "include": "#propertyset"
@@ -73,13 +282,7 @@
         {
           "include": "#integer"
         }
-      ],
-      "end": "(\\]\\])",
-      "endCaptures": {
-        "1": {
-          "name": "punctuation.definition.tag.end.modx"
-        }
-      }
+      ]
     },
     "propertyset": {
       "patterns": [

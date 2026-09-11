@@ -7,10 +7,10 @@ line 2: "[[- комментарий ]] код после него: [[*id]]"
   "комментарий "               text.html.modx comment.block.modx
   "]]"                         text.html.modx comment.block.modx punctuation.definition.comment.end.modx
   " код после него: "          text.html.modx
-  "[["                         text.html.modx meta.tag.modx punctuation.definition.tag.begin.modx
-  "*"                          text.html.modx meta.tag.modx support.type.modx
-  "id"                         text.html.modx meta.tag.modx entity.name.function.modx
-  "]]"                         text.html.modx meta.tag.modx punctuation.definition.tag.end.modx
+  "[["                         text.html.modx meta.tag.field.modx punctuation.definition.tag.begin.modx
+  "*"                          text.html.modx meta.tag.field.modx support.type.field.modx
+  "id"                         text.html.modx meta.tag.field.modx variable.other.resource.modx
+  "]]"                         text.html.modx meta.tag.field.modx punctuation.definition.tag.end.modx
 line 3: "[[- многострочный"
   "[[- "                       text.html.modx comment.block.modx punctuation.definition.comment.begin.modx
   "многострочный"              text.html.modx comment.block.modx

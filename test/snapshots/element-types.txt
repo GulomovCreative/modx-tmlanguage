@@ -1,0 +1,64 @@
+line 1: "[[pdoResources]]"
+  "[["                         text.html.modx meta.tag.snippet.modx punctuation.definition.tag.begin.modx
+  "pdoResources"               text.html.modx meta.tag.snippet.modx entity.name.function.modx
+  "]]"                         text.html.modx meta.tag.snippet.modx punctuation.definition.tag.end.modx
+line 2: "[[$chunk]]"
+  "[["                         text.html.modx meta.tag.chunk.modx punctuation.definition.tag.begin.modx
+  "$"                          text.html.modx meta.tag.chunk.modx support.type.chunk.modx
+  "chunk"                      text.html.modx meta.tag.chunk.modx entity.name.type.chunk.modx
+  "]]"                         text.html.modx meta.tag.chunk.modx punctuation.definition.tag.end.modx
+line 3: "[[*pagetitle]]"
+  "[["                         text.html.modx meta.tag.field.modx punctuation.definition.tag.begin.modx
+  "*"                          text.html.modx meta.tag.field.modx support.type.field.modx
+  "pagetitle"                  text.html.modx meta.tag.field.modx variable.other.resource.modx
+  "]]"                         text.html.modx meta.tag.field.modx punctuation.definition.tag.end.modx
+line 4: "[[+placeholder]]"
+  "[["                         text.html.modx meta.tag.placeholder.modx punctuation.definition.tag.begin.modx
+  "+"                          text.html.modx meta.tag.placeholder.modx support.type.placeholder.modx
+  "placeholder"                text.html.modx meta.tag.placeholder.modx variable.other.placeholder.modx
+  "]]"                         text.html.modx meta.tag.placeholder.modx punctuation.definition.tag.end.modx
+line 5: "[[++site_name]]"
+  "[["                         text.html.modx meta.tag.setting.modx punctuation.definition.tag.begin.modx
+  "++"                         text.html.modx meta.tag.setting.modx support.type.setting.modx
+  "site_name"                  text.html.modx meta.tag.setting.modx variable.other.setting.modx
+  "]]"                         text.html.modx meta.tag.setting.modx punctuation.definition.tag.end.modx
+line 6: "[[~12]]"
+  "[["                         text.html.modx meta.tag.link.modx punctuation.definition.tag.begin.modx
+  "~"                          text.html.modx meta.tag.link.modx support.type.link.modx
+  "12"                         text.html.modx meta.tag.link.modx constant.other.link.modx
+  "]]"                         text.html.modx meta.tag.link.modx punctuation.definition.tag.end.modx
+line 7: "[[%lexicon.key]]"
+  "[["                         text.html.modx meta.tag.lexicon.modx punctuation.definition.tag.begin.modx
+  "%"                          text.html.modx meta.tag.lexicon.modx support.type.lexicon.modx
+  "lexicon.key"                text.html.modx meta.tag.lexicon.modx variable.other.lexicon.modx
+  "]]"                         text.html.modx meta.tag.lexicon.modx punctuation.definition.tag.end.modx
+line 8: "[[!$chunk]] [[!+placeholder]] [[!*tv]] [[!~1]] [[!%lexicon]]"
+  "[["                         text.html.modx meta.tag.chunk.modx punctuation.definition.tag.begin.modx
+  "!"                          text.html.modx meta.tag.chunk.modx keyword.control.uncached.modx
+  "$"                          text.html.modx meta.tag.chunk.modx support.type.chunk.modx
+  "chunk"                      text.html.modx meta.tag.chunk.modx entity.name.type.chunk.modx
+  "]]"                         text.html.modx meta.tag.chunk.modx punctuation.definition.tag.end.modx
+  " "                          text.html.modx
+  "[["                         text.html.modx meta.tag.placeholder.modx punctuation.definition.tag.begin.modx
+  "!"                          text.html.modx meta.tag.placeholder.modx keyword.control.uncached.modx
+  "+"                          text.html.modx meta.tag.placeholder.modx support.type.placeholder.modx
+  "placeholder"                text.html.modx meta.tag.placeholder.modx variable.other.placeholder.modx
+  "]]"                         text.html.modx meta.tag.placeholder.modx punctuation.definition.tag.end.modx
+  " "                          text.html.modx
+  "[["                         text.html.modx meta.tag.field.modx punctuation.definition.tag.begin.modx
+  "!"                          text.html.modx meta.tag.field.modx keyword.control.uncached.modx
+  "*"                          text.html.modx meta.tag.field.modx support.type.field.modx
+  "tv"                         text.html.modx meta.tag.field.modx variable.other.resource.modx
+  "]]"                         text.html.modx meta.tag.field.modx punctuation.definition.tag.end.modx
+  " "                          text.html.modx
+  "[["                         text.html.modx meta.tag.link.modx punctuation.definition.tag.begin.modx
+  "!"                          text.html.modx meta.tag.link.modx keyword.control.uncached.modx
+  "~"                          text.html.modx meta.tag.link.modx support.type.link.modx
+  "1"                          text.html.modx meta.tag.link.modx constant.other.link.modx
+  "]]"                         text.html.modx meta.tag.link.modx punctuation.definition.tag.end.modx
+  " "                          text.html.modx
+  "[["                         text.html.modx meta.tag.lexicon.modx punctuation.definition.tag.begin.modx
+  "!"                          text.html.modx meta.tag.lexicon.modx keyword.control.uncached.modx
+  "%"                          text.html.modx meta.tag.lexicon.modx support.type.lexicon.modx
+  "lexicon"                    text.html.modx meta.tag.lexicon.modx variable.other.lexicon.modx
+  "]]"                         text.html.modx meta.tag.lexicon.modx punctuation.definition.tag.end.modx
