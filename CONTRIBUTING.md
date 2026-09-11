@@ -41,6 +41,10 @@ Tests come in three layers, and a change usually touches more than one:
   each, so a failure says what broke rather than that something did.
 - **Consistency checks** hold the grammar to its own conventions: every scope
   starts with a root themes recognise, and appears in the README.
+- **Embedded-language tests** in `test/embedded.test.js` load the HTML, CSS and
+  JavaScript grammars from Shiki to cover tags inside attributes, `<style>` and
+  `<script>`. They are kept apart from the snapshots so that a third-party
+  grammar update cannot rewrite every snapshot in the repository.
 
 The workflow:
 
