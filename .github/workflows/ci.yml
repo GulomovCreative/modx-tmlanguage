@@ -5,6 +5,18 @@ on:
     branches: [master]
   pull_request:
 
+# Workflow только читает репозиторий: ни публикаций, ни комментариев, ни
+# записи в ветки. Явное указание закрывает запись на случай, если права по
+# умолчанию в настройках репозитория окажутся шире.
+permissions:
+  contents: read
+
+# Новый пуш в ту же ветку отменяет предыдущий прогон: держать очередь
+# проверок для кода, который уже неактуален, незачем.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     name: Тесты (Node ${{ matrix.node }})
@@ -21,3 +33,33 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
+
+  package:
+    name: Содержимое пакета
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      # Тесты проверяют, что установленный пакет работает. Здесь — что в него
+      # попадает ровно то, что задумано: лишний файл в тарболе заметить иначе
+      # можно только вручную, а публикация необратима.
+      - name: Сверить список файлов тарбола
+        run: |
+          ACTUAL=$(npm pack --dry-run --json --ignore-scripts \
+            | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{
+                console.log(JSON.parse(s)[0].files.map(f=>f.path).sort().join('\n'));
+              })")
+          EXPECTED=$(printf 'LICENSE\nREADME.md\nindex.js\nmodx.tmLanguage.json\npackage.json')
+          if [ "$ACTUAL" != "$EXPECTED" ]; then
+            echo "Состав пакета изменился."
+            echo "--- ожидалось ---"; echo "$EXPECTED"
+            echo "--- получено ---";  echo "$ACTUAL"
+            echo
+            echo "Если это намеренно, обновите список в .github/workflows/ci.yml."
+            exit 1
+          fi
+          echo "Состав пакета не изменился:"; echo "$ACTUAL"
