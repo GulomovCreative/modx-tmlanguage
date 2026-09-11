@@ -125,6 +125,32 @@ A tag written inside a comment stays comment-coloured rather than looking
 active, and nested tags do not end the comment early.
 
 
+## Tags inside embedded languages
+
+MODX tags are recognised inside HTML attribute values and inside `<style>`:
+
+``` html
+<a href="[[~12]]" class="[[+cssClass]]">link</a>
+<style>.box { color: [[++brand_color]]; }</style>
+```
+
+Inside `<script>` they are recognised within string literals, which is where
+they almost always appear:
+
+``` html
+<script>var id = "[[*id]]";</script>
+```
+
+**A bare tag in JavaScript code is not highlighted.** In `var n = [[+count]];`
+the JavaScript grammar reads `[[` as the start of a nested array literal and
+wins over this grammar's injection. MODX substitutes the value there perfectly
+well — only the colouring is missing. Adding an injection targeted at `source.js`
+does not change it, and the behaviour predates the current test suite rather
+than being introduced by it.
+
+The cases above are pinned by tests, including the limitation, so that a future
+change in either direction is visible.
+
 ## Development
 
 Install dependencies and run the test suite:
@@ -156,6 +182,8 @@ diff before committing:
 npm run test:update
 ```
 
-Note that `text.html.basic` is not published as a standalone package, so the
-embedded HTML grammar is not resolved in tests; only this grammar's own rules
-are covered.
+Most tests run without the surrounding HTML grammar, so snapshots describe this
+grammar's own rules and do not shift when a third-party grammar changes.
+`test/embedded.test.js` is the exception: it loads the HTML, CSS and JavaScript
+grammars from Shiki — the same ones VS Code uses — to cover tags inside embedded
+languages.

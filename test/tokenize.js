@@ -8,42 +8,63 @@ const oniguruma = require('vscode-oniguruma');
 const GRAMMAR_PATH = path.resolve(__dirname, '..', 'modx.tmLanguage.json');
 const SCOPE_NAME = 'text.html.modx';
 
-let registryPromise = null;
+// Грамматики HTML, JS и CSS не публикуются по отдельности, но набор Shiki —
+// это те же грамматики, что использует VS Code. Благодаря им проверяется
+// поведение MODX-тегов внутри <script>, <style> и значений HTML-атрибутов:
+// без них грамматика text.html.basic не разрешается и вся вложенная область
+// остаётся непроверенной.
+let embeddedPromise = null;
 
-function getRegistry() {
-  if (registryPromise === null) {
+function getEmbeddedGrammars() {
+  if (embeddedPromise === null) {
+    embeddedPromise = import('@shikijs/langs/html').then((module) => {
+      const bundle = module.default;
+      return new Map(bundle.map((grammar) => [grammar.scopeName, grammar]));
+    });
+  }
+  return embeddedPromise;
+}
+
+const registries = new Map();
+
+function getRegistry(withEmbedded) {
+  if (!registries.has(withEmbedded)) {
     const wasm = fs.readFileSync(require.resolve('vscode-oniguruma/release/onig.wasm'));
     const onigLib = oniguruma.loadWASM(wasm).then(() => ({
       createOnigScanner: (sources) => new oniguruma.OnigScanner(sources),
       createOnigString: (str) => new oniguruma.OnigString(str),
     }));
 
-    registryPromise = Promise.resolve(
+    registries.set(
+      withEmbedded,
       new vsctm.Registry({
         onigLib,
         loadGrammar: async (scopeName) => {
-          if (scopeName !== SCOPE_NAME) {
-            // text.html.basic не публикуется отдельным пакетом, поэтому
-            // вложенная HTML-грамматика в тестах не разрешается. Проверяем
-            // только собственные правила: всё, что грамматика делегирует в
-            // text.html.basic, остаётся неразмеченным.
+          if (scopeName === SCOPE_NAME) {
+            const raw = fs.readFileSync(GRAMMAR_PATH, 'utf8');
+            return vsctm.parseRawGrammar(raw, GRAMMAR_PATH);
+          }
+          if (!withEmbedded) {
+            // По умолчанию вложенные грамматики не подключаются: снапшоты
+            // тогда описывают только собственные правила и не зависят от
+            // версии чужой грамматики HTML.
             return null;
           }
-          const raw = fs.readFileSync(GRAMMAR_PATH, 'utf8');
-          return vsctm.parseRawGrammar(raw, GRAMMAR_PATH);
+          const embedded = await getEmbeddedGrammars();
+          return embedded.get(scopeName) ?? null;
         },
       })
     );
   }
-  return registryPromise;
+  return registries.get(withEmbedded);
 }
 
 /**
  * Разбивает текст на строки и токенизирует их грамматикой MODX.
  * Возвращает массив строк вида { line, tokens: [{ text, scopes }] }.
  */
-async function tokenize(source) {
-  const registry = await getRegistry();
+async function tokenize(source, { embedded = false } = {}) {
+  const registry = getRegistry(embedded);
   const grammar = await registry.loadGrammar(SCOPE_NAME);
   if (!grammar) {
     throw new Error('Не удалось загрузить грамматику ' + SCOPE_NAME);
