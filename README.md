@@ -25,6 +25,25 @@ const grammar = require('modx-tmlanguage/modx.tmLanguage.json');
 grammar.scopeName; // "text.html.modx"
 ```
 
+## File types
+
+The grammar claims `.tpl`, `.html` and `.htm`. MODX itself puts no constraint
+on how template and chunk files are named, so a project that stores elements
+under other extensions needs to say so in the editor rather than wait for the
+grammar to guess. In VS Code that is a `files.associations` entry:
+
+``` json
+{
+  "files.associations": {
+    "*.chunk": "modx",
+    "*.modx": "modx"
+  }
+}
+```
+
+The value is the language id the grammar is registered under by whatever
+extension packages it — `modx` above is an example, not a promise.
+
 ## Scopes
 
 The grammar's own scope is `text.html.modx`. It includes `text.html.basic`

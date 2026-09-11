@@ -282,6 +282,14 @@ test('каждый scope задокументирован в README', () => {
   );
 });
 
+test('заявленные расширения файлов описаны в README', () => {
+  const grammar = JSON.parse(fs.readFileSync(GRAMMAR_PATH, 'utf8'));
+  const readme = fs.readFileSync(path.resolve(__dirname, '..', 'README.md'), 'utf8');
+  assert.ok(grammar.fileTypes.length > 0, 'fileTypes пуст — грамматика не включится ни на чём');
+  const undocumented = grammar.fileTypes.filter((type) => !readme.includes('`.' + type + '`'));
+  assert.deepEqual(undocumented, [], 'нет в README: ' + undocumented.join(', '));
+});
+
 test('грамматика — валидный JSON и index.js указывает на неё', () => {
   const grammar = JSON.parse(fs.readFileSync(GRAMMAR_PATH, 'utf8'));
   assert.equal(grammar.scopeName, 'text.html.modx');
