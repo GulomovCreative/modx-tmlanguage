@@ -78,3 +78,30 @@ the package would notice — a highlighting change, a new scope, a change to wha
 the package exports. Internal refactors and test-only changes do not need one.
 If a change is risky — anything touching where a tag or comment begins and ends
 — say what could regress and what you did to rule it out.
+
+## Releasing
+
+Releases go out from `master` with one command:
+
+``` sh
+npm run publish:major   # or publish:minor / publish:patch
+```
+
+That runs `npm version`, which bumps `package.json`, commits, tags, pushes and
+publishes to npm. Two guards run first, because a published version cannot be
+taken back:
+
+- `preversion` refuses to run from a branch other than `master`, with
+  uncommitted changes, or when the branch is behind the remote.
+- `version` refuses to continue if `CHANGELOG.md` has no section for the version
+  being released, and warns if entries are left under `Unreleased`.
+
+So preparing a release means editing the changelog, not the version number:
+rename `## [Unreleased]` to `## [X.Y.Z] — YYYY-MM-DD`, open a fresh empty
+`Unreleased` above it, and update the link definitions at the bottom of the
+file. Leave `version` in `package.json` alone — `npm version` owns it, and
+setting it by hand makes the release skip a number.
+
+Which part to bump is decided by what the change does to the two public
+surfaces: what the package exports, and the scope names. Renaming a scope breaks
+every theme that targets it, so it is a major change even though no code fails.
