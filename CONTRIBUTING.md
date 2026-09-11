@@ -68,5 +68,9 @@ breaking change for anyone who styled it.
 ## Pull requests
 
 One concern per pull request. Say what you changed, why, and what you checked.
+
+Add an entry to `CHANGELOG.md` under `## [Unreleased]` for anything a user of
+the package would notice — a highlighting change, a new scope, a change to what
+the package exports. Internal refactors and test-only changes do not need one.
 If a change is risky — anything touching where a tag or comment begins and ends
 — say what could regress and what you did to rule it out.
