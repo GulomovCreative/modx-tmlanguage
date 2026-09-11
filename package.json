@@ -8,14 +8,16 @@
   },
   "main": "index.js",
   "exports": {
-    ".": "./modx.tmLanguage.json"
+    ".": "./index.js",
+    "./modx.tmLanguage.json": "./modx.tmLanguage.json",
+    "./package.json": "./package.json"
   },
   "files": [
     "modx.tmLanguage.json",
     "index.js"
   ],
   "scripts": {
-    "test": "node --test test/grammar.test.js",
+    "test": "node --test test/grammar.test.js test/package.test.js",
     "test:update": "node test/snapshot.js",
     "prepublishOnly": "npm test",
     "publish:major": "npm version major",
