@@ -1,0 +1,34 @@
+name: Highlighting problem
+description: Something is coloured wrong, or not at all
+labels: [bug]
+body:
+  - type: textarea
+    id: snippet
+    attributes:
+      label: The MODX code
+      description: The smallest snippet that shows the problem.
+      render: html
+      placeholder: "[[!pdoResources? &limit=`10`]]"
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected, and what you got
+      description: Which part is coloured wrong. A screenshot helps.
+    validations:
+      required: true
+  - type: input
+    id: editor
+    attributes:
+      label: Editor and theme
+      placeholder: VS Code 1.9x, Default Dark Modern
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Package version
+      placeholder: 1.2.0
+    validations:
+      required: true
