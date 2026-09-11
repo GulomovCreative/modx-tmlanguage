@@ -116,3 +116,17 @@ test('метаданные пакета заполнены и в формате,
   assert.ok(pkg.bugs.url.startsWith(repo), 'bugs.url ведёт не в этот репозиторий');
   assert.ok(pkg.homepage.startsWith(repo), 'homepage ведёт не в этот репозиторий');
 });
+
+test('в LICENSE указан автор пакета', () => {
+  // Файл лицензии и манифест — два независимых места, где записан
+  // правообладатель. Разойтись они могут незаметно: лицензия почти никогда
+  // не открывается, а публикуется при этом в каждом релизе.
+  const pkg = require(path.join(ROOT, 'package.json'));
+  const license = fs.readFileSync(path.join(ROOT, 'LICENSE'), 'utf8');
+
+  assert.ok(
+    license.includes(pkg.author.name),
+    'в LICENSE нет имени автора из package.json: ' + pkg.author.name
+  );
+  assert.match(license, /^Copyright \(c\) \d{4} /m, 'строка копирайта не в ожидаемом виде');
+});
