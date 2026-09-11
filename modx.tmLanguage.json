@@ -3,7 +3,8 @@
   "scopeName": "text.html.modx",
   "fileTypes": [
     "tpl",
-    "html"
+    "html",
+    "htm"
   ],
   "injections": {
     "L:text.html.modx - comment.block.modx": {
