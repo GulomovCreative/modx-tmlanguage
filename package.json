@@ -17,7 +17,7 @@
     "index.js"
   ],
   "scripts": {
-    "test": "node --test test/grammar.test.js test/package.test.js test/release.test.js",
+    "test": "node --test test/grammar.test.js test/package.test.js test/release.test.js test/embedded.test.js",
     "test:update": "node test/snapshot.js",
     "prepublishOnly": "npm test",
     "preversion": "node scripts/preversion.js",
@@ -45,6 +45,7 @@
     "node": ">=12"
   },
   "devDependencies": {
+    "@shikijs/langs": "^4.4.3",
     "vscode-oniguruma": "^2.0.1",
     "vscode-textmate": "^9.3.2"
   }

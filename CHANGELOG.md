@@ -46,6 +46,12 @@ change, and the package entry point goes back to what it returned before 1.2.0.
   `entity.name.function.modx`; they are now separate, so a theme can colour
   `[[*pagetitle]]` differently from `[[pdoResources]]`. **This changes colours
   for existing users** — see the Scopes section of the README for the full list.
+- Tests covering MODX tags inside embedded languages — HTML attribute values,
+  `<style>`, and `<script>` — by loading the HTML, CSS and JavaScript grammars
+  from Shiki. This area had never been tested. The README now documents what
+  works there, including one limitation: a bare tag in JavaScript code is not
+  highlighted, because the JavaScript grammar reads `[[` as a nested array
+  literal.
 - A Scopes section in the README documenting all 42 scopes, with a test that
   fails if the grammar emits one the README does not mention.
 - A test suite: snapshots of tokenized fixtures, behaviour tests, and
