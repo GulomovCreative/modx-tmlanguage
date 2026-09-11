@@ -1,0 +1,5 @@
+[[*#pagetitle]]
+[[!Snippet? &amp;limit=`5`]]
+[[+ph:default=`он сказал ``привет`` вчера`]]
+[[!Snippet? &tpl=row &limit=5]]
+[[+ph:default=`значение [[*id]] внутри`]]

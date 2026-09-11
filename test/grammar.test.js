@@ -114,6 +114,63 @@ test('флаг ! не мешает определить тип элемента'
   }
 });
 
+// --- Синтаксис из исходника парсера ---------------------------------------
+// Каждый случай сверен с core/src/Revolution/modParser.php.
+
+test('# после * относится к символу типа, а не к имени', async () => {
+  // case '*': если следующий символ '#', парсер его срезает.
+  const tokenized = await tokenize('[[*#pagetitle]]');
+  assert.deepEqual(
+    tokensWithScope(tokenized, 'support.type.field').map((token) => token.text),
+    ['*#']
+  );
+  assert.deepEqual(
+    tokensWithScope(tokenized, 'variable.other.resource').map((token) => token.text),
+    ['pagetitle']
+  );
+});
+
+test('префикс amp; не попадает в имя параметра', async () => {
+  // parsePropertyString: if (substr($propName, 0, 4) == "amp;") — префикс срезается.
+  const tokenized = await tokenize('[[!Snippet? &amp;limit=`5`]]');
+  assert.deepEqual(
+    tokensWithScope(tokenized, 'variable.parameter').map((token) => token.text),
+    ['limit']
+  );
+});
+
+test('двойной бэктик — экранирование, а не конец значения', async () => {
+  // parsePropertyString: str_replace("``", "`", $propValue).
+  const tokenized = await tokenize('[[+ph:default=`он сказал ``привет`` вчера`]]');
+  assert.equal(tokensWithScope(tokenized, 'constant.character.escape').length, 2);
+  // Значение остаётся одной строкой: ровно одна открывающая и одна закрывающая.
+  assert.equal(tokensWithScope(tokenized, 'punctuation.definition.string.begin').length, 1);
+  assert.equal(tokensWithScope(tokenized, 'punctuation.definition.string.end').length, 1);
+});
+
+test('значение без бэктиков — рабочий синтаксис, а не ошибка', async () => {
+  // parsePropertyString снимает бэктики только если они есть, поэтому
+  // &tpl=row парсится штатно и помечать его invalid нельзя.
+  const tokenized = await tokenize('[[!Snippet? &tpl=row &limit=5]]');
+  assert.deepEqual(
+    tokensWithScope(tokenized, 'string.unquoted').map((token) => token.text),
+    ['row']
+  );
+  assert.deepEqual(
+    tokensWithScope(tokenized, 'constant.numeric').map((token) => token.text),
+    ['5']
+  );
+  assert.deepEqual(tokensWithScope(tokenized, 'invalid'), []);
+});
+
+test('вложенный тег внутри значения по-прежнему разбирается', async () => {
+  const tokenized = await tokenize('[[+ph:default=`значение [[*id]] внутри`]]');
+  assert.deepEqual(
+    tokensWithScope(tokenized, 'variable.other.resource').map((token) => token.text),
+    ['id']
+  );
+});
+
 // --- Конвенции именования -------------------------------------------------
 // Scope, не начинающийся с распознаваемого корня, темами игнорируется:
 // токен остаётся неподсвеченным. Тест держит грамматику в конвенциях.

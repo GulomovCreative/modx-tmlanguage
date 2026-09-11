@@ -150,7 +150,7 @@
     },
     "tag-field": {
       "name": "meta.tag.field.modx",
-      "begin": "(\\[\\[)(!?)(\\*)([-_a-zA-Z0-9\\.]*)",
+      "begin": "(\\[\\[)(!?)(\\*#?)([-_a-zA-Z0-9\\.]*)",
       "beginCaptures": {
         "1": {
           "name": "punctuation.definition.tag.begin.modx"
@@ -281,6 +281,9 @@
         },
         {
           "include": "#integer"
+        },
+        {
+          "include": "#unquoted-value"
         }
       ]
     },
@@ -320,15 +323,18 @@
     "attribute": {
       "patterns": [
         {
-          "match": "(\\&)\\s*([-_a-zA-Z0-9\\.]+)\\s*(\\=)?",
+          "match": "(\\&)(amp;)?\\s*([-_a-zA-Z0-9\\.]+)\\s*(\\=)?",
           "captures": {
             "1": {
               "name": "punctuation.definition.parameter.modx"
             },
             "2": {
-              "name": "variable.parameter.modx"
+              "name": "punctuation.definition.parameter.modx"
             },
             "3": {
+              "name": "variable.parameter.modx"
+            },
+            "4": {
               "name": "keyword.operator.assignment.modx"
             }
           }
@@ -347,6 +353,10 @@
           },
           "patterns": [
             {
+              "match": "``",
+              "name": "constant.character.escape.modx"
+            },
+            {
               "include": "#interpolation"
             },
             {
@@ -358,7 +368,8 @@
             "0": {
               "name": "punctuation.definition.string.end.modx"
             }
-          }
+          },
+          "applyEndPatternLast": true
         }
       ]
     },
@@ -424,6 +435,14 @@
         {
           "name": "constant.numeric.modx",
           "match": "[+-]?\\b[0-9][0-9]*(?:\\.[0-9][0-9]*)?(?:[eE][+-]?[0-9]+)?\\b"
+        }
+      ]
+    },
+    "unquoted-value": {
+      "patterns": [
+        {
+          "match": "(?<=\\=)[^\\s`\\]&]+",
+          "name": "string.unquoted.modx"
         }
       ]
     }
