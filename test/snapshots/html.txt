@@ -16,3 +16,26 @@ line 4: "[^qt^] [^t^] [^s^]"
   "[^"                         text.html.modx meta.tag.timing.modx punctuation.definition.tag.begin.modx
   "s"                          text.html.modx meta.tag.timing.modx constant.other.timing.modx
   "^]"                         text.html.modx meta.tag.timing.modx punctuation.definition.tag.end.modx
+line 5: "<style>a::after { content: \"[[\"; }</style>"
+  "<style>a::after { content: \"[[\"; }</style>" text.html.modx
+line 6: "<script>var open = \"[[\"; var arr = [[0], [1]];</script>"
+  "<script>var open = \"[[\"; var arr = " text.html.modx
+  "[["                         text.html.modx meta.tag.snippet.modx punctuation.definition.tag.begin.modx
+  "0"                          text.html.modx meta.tag.snippet.modx entity.name.function.modx
+  "], ["                       text.html.modx meta.tag.snippet.modx
+  "1"                          text.html.modx meta.tag.snippet.modx constant.numeric.modx
+  "]]"                         text.html.modx meta.tag.snippet.modx punctuation.definition.tag.end.modx
+  ";</script>"                 text.html.modx
+line 7: "[[ Snippet ]] [[[[+dynamicName]]]]"
+  "[["                         text.html.modx meta.tag.snippet.modx punctuation.definition.tag.begin.modx
+  " "                          text.html.modx meta.tag.snippet.modx
+  "Snippet"                    text.html.modx meta.tag.snippet.modx entity.name.function.modx
+  " "                          text.html.modx meta.tag.snippet.modx
+  "]]"                         text.html.modx meta.tag.snippet.modx punctuation.definition.tag.end.modx
+  " "                          text.html.modx
+  "[["                         text.html.modx meta.tag.snippet.modx punctuation.definition.tag.begin.modx
+  "[["                         text.html.modx meta.tag.snippet.modx meta.tag.placeholder.modx punctuation.definition.tag.begin.modx
+  "+"                          text.html.modx meta.tag.snippet.modx meta.tag.placeholder.modx support.type.placeholder.modx
+  "dynamicName"                text.html.modx meta.tag.snippet.modx meta.tag.placeholder.modx variable.other.placeholder.modx
+  "]]"                         text.html.modx meta.tag.snippet.modx meta.tag.placeholder.modx punctuation.definition.tag.end.modx
+  "]]"                         text.html.modx meta.tag.snippet.modx punctuation.definition.tag.end.modx
