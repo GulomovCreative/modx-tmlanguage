@@ -114,6 +114,42 @@ test('флаг ! не мешает определить тип элемента'
   }
 });
 
+// --- Границы незакрытых конструкций ---------------------------------------
+// У тегов, комментариев и timing-тегов не было ограничителя, поэтому одна
+// забытая закрывающая скобка красила весь остаток файла. Ограничитель —
+// пустая строка: многострочные вызовы сниппетов законны и распространены,
+// поэтому привязать к концу строки нельзя.
+
+test('незакрытый тег не переживает пустую строку', async () => {
+  const tokenized = await tokenize('[[Snippet\n\nобычный текст\nи ещё');
+  const inTag = (line) => line.tokens.some((t) => t.scopes.some((s) => s.startsWith('meta.tag')));
+  assert.equal(inTag(tokenized[0]), true, 'первая строка должна быть тегом');
+  assert.equal(inTag(tokenized[2]), false, 'текст после пустой строки не должен быть в теге');
+  assert.equal(inTag(tokenized[3]), false);
+});
+
+test('незакрытый комментарий не переживает пустую строку', async () => {
+  const tokenized = await tokenize('[[- коммент\n\n<p>разметка</p>');
+  const commented = tokenized[2].tokens.some((t) => t.scopes.some((s) => s.startsWith('comment')));
+  assert.equal(commented, false);
+});
+
+test('законный многострочный тег не ломается', async () => {
+  const tokenized = await tokenize('[[!pdoResources?\n  &parents=`5`\n  &limit=`10`\n]]\nпосле');
+  for (const index of [0, 1, 2, 3]) {
+    assert.equal(
+      tokenized[index].tokens.some((t) => t.scopes.some((s) => s.startsWith('meta.tag'))),
+      true,
+      'строка ' + (index + 1) + ' должна оставаться внутри тега'
+    );
+  }
+  assert.equal(
+    tokenized[4].tokens.some((t) => t.scopes.some((s) => s.startsWith('meta.tag'))),
+    false,
+    'после закрытия тег продолжаться не должен'
+  );
+});
+
 // --- Синтаксис из исходника парсера ---------------------------------------
 // Каждый случай сверен с core/src/Revolution/modParser.php.
 

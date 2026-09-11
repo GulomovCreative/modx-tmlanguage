@@ -1,0 +1,44 @@
+line 1: "[[Snippet"
+  "[["                         text.html.modx meta.tag.snippet.modx punctuation.definition.tag.begin.modx
+  "Snippet"                    text.html.modx meta.tag.snippet.modx entity.name.function.modx
+line 2: "&forgot=`to close`"
+  "&"                          text.html.modx meta.tag.snippet.modx punctuation.definition.parameter.modx
+  "forgot"                     text.html.modx meta.tag.snippet.modx variable.parameter.modx
+  "="                          text.html.modx meta.tag.snippet.modx keyword.operator.assignment.modx
+  "`"                          text.html.modx meta.tag.snippet.modx string.other.modx punctuation.definition.string.begin.modx
+  "to close"                   text.html.modx meta.tag.snippet.modx string.other.modx
+  "`"                          text.html.modx meta.tag.snippet.modx string.other.modx punctuation.definition.string.end.modx
+line 3: ""
+  ""                           text.html.modx
+line 4: "обычная разметка после пустой строки"
+  "обычная разметка после пустой строки" text.html.modx
+line 5: "[[- незакрытый комментарий"
+  "[[- "                       text.html.modx comment.block.modx punctuation.definition.comment.begin.modx
+  "незакрытый комментарий"     text.html.modx comment.block.modx
+line 6: ""
+  ""                           text.html.modx
+line 7: "<p>и тут уже нормальный HTML</p>"
+  "<p>и тут уже нормальный HTML</p>" text.html.modx
+line 8: "[[!pdoResources?"
+  "[["                         text.html.modx meta.tag.snippet.modx punctuation.definition.tag.begin.modx
+  "!"                          text.html.modx meta.tag.snippet.modx keyword.control.uncached.modx
+  "pdoResources"               text.html.modx meta.tag.snippet.modx entity.name.function.modx
+  "?"                          text.html.modx meta.tag.snippet.modx punctuation.separator.properties.modx
+line 9: "  &parents=`5`"
+  "  "                         text.html.modx meta.tag.snippet.modx
+  "&"                          text.html.modx meta.tag.snippet.modx punctuation.definition.parameter.modx
+  "parents"                    text.html.modx meta.tag.snippet.modx variable.parameter.modx
+  "="                          text.html.modx meta.tag.snippet.modx keyword.operator.assignment.modx
+  "`"                          text.html.modx meta.tag.snippet.modx string.other.modx punctuation.definition.string.begin.modx
+  "5"                          text.html.modx meta.tag.snippet.modx string.other.modx constant.numeric.modx
+  "`"                          text.html.modx meta.tag.snippet.modx string.other.modx punctuation.definition.string.end.modx
+line 10: "  &limit=`10`"
+  "  "                         text.html.modx meta.tag.snippet.modx
+  "&"                          text.html.modx meta.tag.snippet.modx punctuation.definition.parameter.modx
+  "limit"                      text.html.modx meta.tag.snippet.modx variable.parameter.modx
+  "="                          text.html.modx meta.tag.snippet.modx keyword.operator.assignment.modx
+  "`"                          text.html.modx meta.tag.snippet.modx string.other.modx punctuation.definition.string.begin.modx
+  "10"                         text.html.modx meta.tag.snippet.modx string.other.modx constant.numeric.modx
+  "`"                          text.html.modx meta.tag.snippet.modx string.other.modx punctuation.definition.string.end.modx
+line 11: "]]"
+  "]]"                         text.html.modx meta.tag.snippet.modx punctuation.definition.tag.end.modx

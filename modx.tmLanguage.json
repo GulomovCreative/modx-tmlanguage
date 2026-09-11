@@ -83,7 +83,7 @@
           "include": "#tag-body"
         }
       ],
-      "end": "(\\]\\])",
+      "end": "(\\]\\])|(?=^[ \\t]*$)",
       "endCaptures": {
         "1": {
           "name": "punctuation.definition.tag.end.modx"
@@ -112,7 +112,7 @@
           "include": "#tag-body"
         }
       ],
-      "end": "(\\]\\])",
+      "end": "(\\]\\])|(?=^[ \\t]*$)",
       "endCaptures": {
         "1": {
           "name": "punctuation.definition.tag.end.modx"
@@ -141,7 +141,7 @@
           "include": "#tag-body"
         }
       ],
-      "end": "(\\]\\])",
+      "end": "(\\]\\])|(?=^[ \\t]*$)",
       "endCaptures": {
         "1": {
           "name": "punctuation.definition.tag.end.modx"
@@ -170,7 +170,7 @@
           "include": "#tag-body"
         }
       ],
-      "end": "(\\]\\])",
+      "end": "(\\]\\])|(?=^[ \\t]*$)",
       "endCaptures": {
         "1": {
           "name": "punctuation.definition.tag.end.modx"
@@ -199,7 +199,7 @@
           "include": "#tag-body"
         }
       ],
-      "end": "(\\]\\])",
+      "end": "(\\]\\])|(?=^[ \\t]*$)",
       "endCaptures": {
         "1": {
           "name": "punctuation.definition.tag.end.modx"
@@ -228,7 +228,7 @@
           "include": "#tag-body"
         }
       ],
-      "end": "(\\]\\])",
+      "end": "(\\]\\])|(?=^[ \\t]*$)",
       "endCaptures": {
         "1": {
           "name": "punctuation.definition.tag.end.modx"
@@ -254,7 +254,7 @@
           "include": "#tag-body"
         }
       ],
-      "end": "(\\]\\])",
+      "end": "(\\]\\])|(?=^[ \\t]*$)",
       "endCaptures": {
         "1": {
           "name": "punctuation.definition.tag.end.modx"
@@ -388,7 +388,7 @@
               "include": "#nested-tag"
             }
           ],
-          "end": "\\]\\]",
+          "end": "\\]\\]|(?=^[ \\t]*$)",
           "endCaptures": {
             "0": {
               "name": "punctuation.definition.comment.end.modx"
@@ -421,7 +421,7 @@
             }
           },
           "contentName": "constant.other.timing.modx",
-          "end": "(\\^\\])",
+          "end": "(\\^\\])|(?=^[ \\t]*$)",
           "endCaptures": {
             "1": {
               "name": "punctuation.definition.tag.end.modx"
