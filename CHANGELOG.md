@@ -58,6 +58,9 @@ change, and the package entry point goes back to what it returned before 1.2.0.
 
 ### Changed
 
+- The copyright holder in `LICENSE` is now the package author. The file had
+  named an unrelated company since the first commit, with a year predating the
+  repository.
 - Values written without backticks (`&tpl=row`) are now scoped as unquoted
   strings rather than left unstyled. MODX accepts them: the parser strips
   backticks only when they are present.
