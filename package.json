@@ -17,13 +17,14 @@
     "index.js"
   ],
   "scripts": {
-    "test": "node --test test/grammar.test.js test/package.test.js",
+    "test": "node --test test/grammar.test.js test/package.test.js test/release.test.js",
     "test:update": "node test/snapshot.js",
     "prepublishOnly": "npm test",
+    "preversion": "node scripts/preversion.js",
     "publish:major": "npm version major",
     "publish:minor": "npm version minor",
     "publish:patch": "npm version patch",
-    "postversion": "git push && git push --tags && npm publish"
+    "postversion": "git push origin master && git push origin --tags && npm publish"
   },
   "repository": {
     "type": "git",
