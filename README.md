@@ -145,6 +145,10 @@ One of those checks compares the grammar against the Scopes section above: a
 scope the grammar emits but the table does not mention fails the suite. Adding
 a scope therefore means documenting it in the same change.
 
+Contributors should read [CONTRIBUTING.md](CONTRIBUTING.md) — in particular the
+rule that MODX's own parser, not documentation or community advice, settles what
+the grammar should accept.
+
 After an intentional grammar change, regenerate the snapshots and review the
 diff before committing:
 

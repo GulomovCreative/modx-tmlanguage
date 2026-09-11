@@ -1,0 +1,21 @@
+name: Unsupported syntax
+description: A MODX construct the grammar does not know about
+labels: [enhancement]
+body:
+  - type: textarea
+    id: syntax
+    attributes:
+      label: The construct
+      render: html
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Where it is defined
+      description: >
+        A link to the MODX documentation, or better, to the part of
+        core/src/Revolution/modParser.php that handles it. The grammar follows
+        the parser, so that is what settles whether a construct is real.
+    validations:
+      required: true

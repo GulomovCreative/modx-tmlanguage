@@ -1,0 +1,17 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+
+# Фикстуры — это образцы реального кода: отступы и пробелы в них значимы,
+# в том числе на концах строк, и их правка меняет снапшоты.
+[test/fixtures/**]
+trim_trailing_whitespace = false
+
+[test/snapshots/**]
+trim_trailing_whitespace = false
