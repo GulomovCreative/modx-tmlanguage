@@ -94,3 +94,25 @@ test('путь из пакета указывает на разбираемую 
   assert.equal(scopeName, 'text.html.modx');
   assert.ok(Number(ruleCount) > 0, 'в грамматике нет правил');
 });
+
+// --- Метаданные ------------------------------------------------------------
+// Поля, по которым npm строит страницу пакета. Ошибка в них не ломает код и
+// потому легко живёт незамеченной, пока кто-то не пойдёт искать, куда сообщить
+// об ошибке, и не обнаружит, что ссылки нет.
+
+test('метаданные пакета заполнены и в формате, который понимает npm', () => {
+  const pkg = require(path.join(ROOT, 'package.json'));
+
+  assert.match(
+    pkg.repository.url,
+    /^git\+https:\/\//,
+    'npm ожидает repository.url в форме git+https://…, иначе ссылка на исходники не строится'
+  );
+  assert.ok(pkg.bugs && pkg.bugs.url, 'без bugs.url на странице пакета нет ссылки «сообщить об ошибке»');
+  assert.ok(pkg.homepage, 'нет homepage');
+  assert.ok(pkg.engines && pkg.engines.node, 'не указана минимальная версия Node');
+
+  const repo = 'https://github.com/GulomovCreative/modx-tmlanguage';
+  assert.ok(pkg.bugs.url.startsWith(repo), 'bugs.url ведёт не в этот репозиторий');
+  assert.ok(pkg.homepage.startsWith(repo), 'homepage ведёт не в этот репозиторий');
+});
