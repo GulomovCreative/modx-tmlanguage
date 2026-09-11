@@ -28,8 +28,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/GulomovCreative/modx-tmlanguage.git"
+    "url": "git+https://github.com/GulomovCreative/modx-tmlanguage.git"
   },
+  "bugs": {
+    "url": "https://github.com/GulomovCreative/modx-tmlanguage/issues"
+  },
+  "homepage": "https://github.com/GulomovCreative/modx-tmlanguage#readme",
   "keywords": [
     "modx",
     "MODX",
@@ -37,6 +41,9 @@
     "syntax"
   ],
   "license": "MIT",
+  "engines": {
+    "node": ">=12"
+  },
   "devDependencies": {
     "vscode-oniguruma": "^2.0.1",
     "vscode-textmate": "^9.3.2"
