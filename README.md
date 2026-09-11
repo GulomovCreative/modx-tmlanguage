@@ -7,6 +7,24 @@ This repository contains TmLanguage files that can be consumed by [MODX Revoluti
 npm install modx-tmlanguage
 ```
 
+## Usage
+
+The package entry point resolves to the absolute path of the grammar file, so
+an editor integration can hand it straight to whatever loads TextMate grammars:
+
+``` js
+const grammarPath = require('modx-tmlanguage');
+// or: import grammarPath from 'modx-tmlanguage';
+```
+
+The grammar itself is also exported, for when the parsed object is what you
+need rather than a path:
+
+``` js
+const grammar = require('modx-tmlanguage/modx.tmLanguage.json');
+grammar.scopeName; // "text.html.modx"
+```
+
 ## Scopes
 
 The grammar's own scope is `text.html.modx`. It includes `text.html.basic`
