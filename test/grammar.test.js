@@ -60,7 +60,7 @@ test('комментарий закрывается на первом ]] в се
   assert.equal(commented, '[[- коммент ]]');
   // Тег после комментария разбирается как обычный тег.
   assert.deepEqual(
-    tokensWithScope(tokenized, 'entity.name.function').map((token) => token.text),
+    tokensWithScope(tokenized, 'variable.other.resource').map((token) => token.text),
     ['id']
   );
 });
@@ -76,6 +76,42 @@ test('вложенный тег не закрывает комментарий �
 test('незакрытый комментарий не течёт за пределы своего ]]', async () => {
   const tokenized = await tokenize('[[- первый ]]\nобычный текст\n[[- второй ]]');
   assert.equal(tokenized[1].tokens.every((token) => !token.scopes.some((s) => s.startsWith('comment'))), true);
+});
+
+// --- Типы элементов -------------------------------------------------------
+// Каждый тип тега MODX должен получать свой scope: в шаблоне [[*pagetitle]] и
+// [[pdoResources]] — разные сущности, темы должны уметь их различать.
+// Символы типов взяты из switch ($token) в modParser.php.
+
+test('каждый тип элемента получает свой scope', async () => {
+  const cases = [
+    ['[[pdoResources]]', 'entity.name.function.modx'],
+    ['[[$chunk]]', 'entity.name.type.chunk.modx'],
+    ['[[*pagetitle]]', 'variable.other.resource.modx'],
+    ['[[+placeholder]]', 'variable.other.placeholder.modx'],
+    ['[[++site_name]]', 'variable.other.setting.modx'],
+    ['[[~12]]', 'constant.other.link.modx'],
+    ['[[%lexicon.key]]', 'variable.other.lexicon.modx'],
+  ];
+  for (const [source, expected] of cases) {
+    const tokenized = await tokenize(source);
+    const names = tokensWithScope(tokenized, expected).map((token) => token.text);
+    assert.equal(names.length, 1, source + ' — ожидался ровно один токен со scope ' + expected);
+  }
+});
+
+test('флаг ! не мешает определить тип элемента', async () => {
+  const tokenized = await tokenize('[[!$chunk]] [[!+ph]] [[!*tv]] [[!~1]] [[!%lex]]');
+  assert.equal(tokensWithScope(tokenized, 'keyword.control.uncached').length, 5);
+  for (const scope of [
+    'entity.name.type.chunk',
+    'variable.other.placeholder',
+    'variable.other.resource',
+    'constant.other.link',
+    'variable.other.lexicon',
+  ]) {
+    assert.equal(tokensWithScope(tokenized, scope).length, 1, 'не найден ' + scope);
+  }
 });
 
 // --- Конвенции именования -------------------------------------------------

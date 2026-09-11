@@ -1,0 +1,8 @@
+[[pdoResources]]
+[[$chunk]]
+[[*pagetitle]]
+[[+placeholder]]
+[[++site_name]]
+[[~12]]
+[[%lexicon.key]]
+[[!$chunk]] [[!+placeholder]] [[!*tv]] [[!~1]] [[!%lexicon]]
