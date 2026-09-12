@@ -3,7 +3,17 @@
 Previously published as `modx-tmlanguage`; that name is deprecated and no longer
 updated.
 
-This repository contains TmLanguage files that can be consumed by [MODX Revolution](https://docs.modx.com/3.x/en/building-sites/tag-syntax) editors and plugins such as [Visual Studio Code](https://github.com/Microsoft/vscode), [Sublime Text](https://www.sublimetext.com), [Atom](https://atom.io), and possibly others.
+A TextMate grammar for the [MODX Revolution tag syntax](https://docs.modx.com/3.x/en/building-sites/tag-syntax)
+— snippets, chunks, resource fields, placeholders, system settings, links and
+lexicon entries, with their property lists and output modifiers.
+
+It reads as one grammar over a template file: the surrounding HTML is
+highlighted by the editor's own HTML grammar, and MODX tags are recognised
+inside it, including within attribute values and `<style>`.
+
+Any editor that reads TextMate grammars can use it —
+[Visual Studio Code](https://code.visualstudio.com),
+[Sublime Text](https://www.sublimetext.com), and others.
 
 ## Installation
 ``` sh
