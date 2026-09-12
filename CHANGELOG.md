@@ -6,8 +6,32 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-Two things in this release deserve attention before upgrading: token colours
-change, and the package entry point goes back to what it returned before 1.2.0.
+## [2.0.0] — 2026-09-11
+
+A major release for two independent reasons: scope names changed, which changes
+colours for everyone, and the package entry point changed, which breaks anyone
+who adapted to 1.2.0.
+
+### Migration
+
+**If you install the package from npm.** On 1.1.2 or earlier, nothing changes —
+`require('modx-tmlanguage')` returns the path to the grammar file, as it always
+did. On 1.2.0 it returned the parsed grammar object instead; that was an
+accident, and the object now lives at an explicit subpath:
+
+``` js
+// 1.2.0 only
+const grammar = require('modx-tmlanguage');
+// 2.0.0
+const grammar = require('modx-tmlanguage/modx.tmLanguage.json');
+```
+
+**If you wrote a theme against these scopes.** Several were renamed because they
+did not start with a root that editors recognise, and element types were split
+apart. `modifier.modx` became `support.function.modifier.modx`;
+`entity.name.modx` became `entity.name.type.propertyset.modx`; and the single
+`entity.name.function.modx` that covered every element type is now seven
+distinct scopes. The README's Scopes section lists all 42.
 
 ### Fixed
 
@@ -107,5 +131,6 @@ change, and the package entry point goes back to what it returned before 1.2.0.
 
 - First public release.
 
-[Unreleased]: https://github.com/GulomovCreative/modx-tmlanguage/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/GulomovCreative/modx-tmlanguage/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/GulomovCreative/modx-tmlanguage/compare/v1.2.0...v2.0.0
 [1.2.0]: https://github.com/GulomovCreative/modx-tmlanguage/releases/tag/v1.2.0

@@ -4,6 +4,8 @@
 // часть вынесена в чистую функцию — так она тестируется без подготовки
 // настоящего репозитория с нужным состоянием.
 
+const fs = require('fs');
+const path = require('path');
 const test = require('node:test');
 const assert = require('node:assert/strict');
 
@@ -58,4 +60,39 @@ test('имя файла не теряет первый символ при ра�
 test('пустой вывод git status даёт пустой список', () => {
   assert.deepEqual(parseStatus(''), []);
   assert.deepEqual(parseStatus('\n'), []);
+});
+
+// --- Проверка CHANGELOG перед релизом --------------------------------------
+
+const { changelogHasVersion, unreleasedIsEmpty } = require('../scripts/version.js');
+
+test('раздел версии в CHANGELOG находится', () => {
+  const changelog = '# Changelog\n\n## [Unreleased]\n\n## [2.0.0] — 2026-09-11\n\n### Fixed\n';
+  assert.equal(changelogHasVersion(changelog, '2.0.0'), true);
+  assert.equal(changelogHasVersion(changelog, '2.0.1'), false);
+  assert.equal(changelogHasVersion(changelog, '1.2.0'), false);
+});
+
+test('заголовок версии без даты тоже считается', () => {
+  assert.equal(changelogHasVersion('## [3.1.0]\n', '3.1.0'), true);
+});
+
+test('точки в номере версии не считаются любым символом', () => {
+  // Наивное «2.0.0» в регулярном выражении совпало бы и с «21000».
+  assert.equal(changelogHasVersion('## [21000]\n', '2.0.0'), false);
+});
+
+test('непустой Unreleased распознаётся', () => {
+  const empty = '## [Unreleased]\n\n## [2.0.0]\n\n### Fixed\n- что-то\n';
+  const filled = '## [Unreleased]\n\n### Added\n- забытая запись\n\n## [2.0.0]\n';
+  assert.equal(unreleasedIsEmpty(empty), true);
+  assert.equal(unreleasedIsEmpty(filled), false);
+});
+
+test('настоящий CHANGELOG содержит раздел готовящейся версии', () => {
+  // Версия в package.json поднимается самим npm version, поэтому здесь
+  // проверяется текущая — то есть что файл и манифест не разошлись.
+  const changelog = fs.readFileSync(path.join(__dirname, '..', 'CHANGELOG.md'), 'utf8');
+  assert.equal(changelogHasVersion(changelog, '2.0.0'), true, 'нет раздела для 2.0.0');
+  assert.equal(unreleasedIsEmpty(changelog), true, 'под Unreleased остались записи');
 });

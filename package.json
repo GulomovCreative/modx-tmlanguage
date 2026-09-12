@@ -21,6 +21,7 @@
     "test:update": "node test/snapshot.js",
     "prepublishOnly": "npm test",
     "preversion": "node scripts/preversion.js",
+    "version": "node scripts/version.js",
     "publish:major": "npm version major",
     "publish:minor": "npm version minor",
     "publish:patch": "npm version patch",
