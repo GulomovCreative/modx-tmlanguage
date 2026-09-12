@@ -1,0 +1,101 @@
+name: Release
+
+# Publishing runs here rather than on a maintainer's machine.
+#
+# Until now `npm version` published from wherever it was run, which made the
+# contents of a release depend on the machine that cut it. That is not a
+# hypothetical: the CRLF line endings that reached npm in 1.2.0 came from a
+# Windows checkout, not from the commits. A runner is the same every time, and
+# what it publishes is the tagged commit and nothing else.
+#
+# The tag is the trigger, so the release is exactly what `npm version` pushed.
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+# Releases are never cancelled mid-flight: a half-finished publish is worse
+# than a slow one.
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    name: Verify the tag
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm test
+
+      # A tag that disagrees with the manifest would publish a version nobody
+      # asked for, under a name nobody can find in git. Both are pushed by the
+      # same `npm version` run, so they can only differ if a tag was moved or
+      # written by hand -- which is exactly the case worth catching.
+      - name: The tag, the manifest and the changelog agree
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          MANIFEST="$(node -p 'require("./package.json").version')"
+          if [ "$VERSION" != "$MANIFEST" ]; then
+            echo "Tag $GITHUB_REF_NAME does not match package.json ($MANIFEST)."
+            exit 1
+          fi
+          # Also the source of the release notes below: no section, no release.
+          node scripts/release-notes.js "$VERSION" > /dev/null
+
+  publish:
+    name: Publish to npm
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      # To create the GitHub release.
+      contents: write
+      # To prove to npm that this workflow is the one the package trusts. This
+      # is what replaces an npm token: there is no long-lived credential in the
+      # repository's secrets to leak or to rotate.
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: npm
+          registry-url: https://registry.npmjs.org
+
+      # Trusted publishing needs npm 11.5.1 or newer, and the npm bundled with
+      # Node 22 is older than that.
+      - name: Use an npm that can publish with OIDC
+        run: npm install -g npm@latest
+
+      - run: npm ci
+
+      # No NODE_AUTH_TOKEN: npm exchanges the workflow's OIDC identity for
+      # publish rights, against the trusted publisher configured for the package
+      # on npmjs.com. That configuration is a one-off manual step -- see
+      # CONTRIBUTING.md -- and without it this step fails with 404 or E401.
+      #
+      # --provenance attaches a signed statement of which workflow, repository
+      # and commit built the tarball; npm shows it on the package page.
+      - name: Publish
+        run: npm publish --provenance
+
+      # The release notes are the changelog section for this version. Writing
+      # them here again by hand would be a second description of the same
+      # release, free to drift from the first.
+      - name: Create the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          node scripts/release-notes.js "$VERSION" > release-notes.md
+          gh release create "$GITHUB_REF_NAME" \
+            --title "$GITHUB_REF_NAME" \
+            --notes-file release-notes.md

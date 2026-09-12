@@ -25,7 +25,7 @@
     "publish:major": "npm version major",
     "publish:minor": "npm version minor",
     "publish:patch": "npm version patch",
-    "postversion": "git push origin master && git push origin --tags && npm publish"
+    "postversion": "git push origin master && git push origin --tags"
   },
   "repository": {
     "type": "git",
