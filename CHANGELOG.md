@@ -6,24 +6,32 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-## [2.0.0] — 2026-09-11
+## [2.0.0] — 2026-09-12
 
-A major release for two independent reasons: scope names changed, which changes
-colours for everyone, and the package entry point changed, which breaks anyone
-who adapted to 1.2.0.
+A major release for three independent reasons: the package moved to a scoped
+name, scope names in the grammar changed, and the package entry point changed.
 
 ### Migration
 
-**If you install the package from npm.** On 1.1.2 or earlier, nothing changes —
-`require('modx-tmlanguage')` returns the path to the grammar file, as it always
-did. On 1.2.0 it returned the parsed grammar object instead; that was an
-accident, and the object now lives at an explicit subpath:
+**The package is now published as `@gulomov/modx-tmlanguage`.** The unscoped
+`modx-tmlanguage` is deprecated and will receive no further releases. Installs
+of the old name keep working — nothing was unpublished — but they stay on 1.2.0.
+
+``` sh
+npm uninstall modx-tmlanguage
+npm install @gulomov/modx-tmlanguage
+```
+
+**What the entry point returns.** On 1.1.2 or earlier, nothing changes —
+`require(...)` returns the path to the grammar file, as it always did. On 1.2.0
+it returned the parsed grammar object instead; that was an accident, and the
+object now lives at an explicit subpath:
 
 ``` js
 // 1.2.0 only
 const grammar = require('modx-tmlanguage');
 // 2.0.0
-const grammar = require('modx-tmlanguage/modx.tmLanguage.json');
+const grammar = require('@gulomov/modx-tmlanguage/modx.tmLanguage.json');
 ```
 
 **If you wrote a theme against these scopes.** Several were renamed because they
@@ -33,15 +41,21 @@ apart. `modifier.modx` became `support.function.modifier.modx`;
 `entity.name.function.modx` that covered every element type is now seven
 distinct scopes. The README's Scopes section lists all 42.
 
+### Changed
+
+- **The package is published under the `@gulomov` scope.** The unscoped name is
+  deprecated. `publishConfig.access` is set to `public`, because npm publishes
+  scoped packages privately by default.
+
 ### Fixed
 
 - **The package entry point returns a path again.** In 1.2.0 an `exports` field
   was added pointing straight at the JSON, which silently overrode `main`:
-  `require('modx-tmlanguage')` started returning the parsed grammar object
+  `require(...)` started returning the parsed grammar object
   instead of the path string it returned in 1.1.2 and earlier. Anyone doing
-  `fs.readFileSync(require('modx-tmlanguage'))` broke. The path is restored,
+  `fs.readFileSync(require(...))` broke. The path is restored,
   and the grammar object is now available at the explicit subpath
-  `modx-tmlanguage/modx.tmLanguage.json`.
+  `@gulomov/modx-tmlanguage/modx.tmLanguage.json`.
 - **ESM import works.** It never did: importing JSON requires a type attribute,
   so `import` failed with `ERR_IMPORT_ATTRIBUTE_MISSING` — including in 1.2.0,
   whose whole point was to add ESM support.

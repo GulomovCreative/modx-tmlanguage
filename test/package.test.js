@@ -17,6 +17,10 @@ const assert = require('node:assert/strict');
 
 const ROOT = path.resolve(__dirname, '..');
 
+// Имя берётся из манифеста, а не пишется здесь: иначе при переименовании
+// пакета тесты продолжили бы проверять старое имя и ничего бы не заметили.
+const PACKAGE_NAME = require(path.join(ROOT, 'package.json')).name;
+
 function npm(args, cwd) {
   return execFileSync(process.platform === 'win32' ? 'npm.cmd' : 'npm', args, {
     cwd,
@@ -56,7 +60,7 @@ test.after(() => {
 
 test('require по имени пакета отдаёт путь к файлу грамматики', () => {
   const out = runInConsumer(consumerDir, `
-    const grammarPath = require('modx-tmlanguage');
+    const grammarPath = require(${JSON.stringify(PACKAGE_NAME)});
     if (typeof grammarPath !== 'string') {
       throw new Error('ожидалась строка с путём, получено: ' + typeof grammarPath);
     }
@@ -67,7 +71,7 @@ test('require по имени пакета отдаёт путь к файлу �
 
 test('import по имени пакета отдаёт тот же путь', () => {
   const out = runInConsumer(consumerDir, `
-    const { default: grammarPath } = await import('modx-tmlanguage');
+    const { default: grammarPath } = await import(${JSON.stringify(PACKAGE_NAME)});
     if (typeof grammarPath !== 'string') {
       throw new Error('ожидалась строка с путём, получено: ' + typeof grammarPath);
     }
@@ -78,7 +82,7 @@ test('import по имени пакета отдаёт тот же путь', ()
 
 test('сам файл грамматики доступен подпутём', () => {
   const out = runInConsumer(consumerDir, `
-    const grammar = require('modx-tmlanguage/modx.tmLanguage.json');
+    const grammar = require(${JSON.stringify(PACKAGE_NAME + '/modx.tmLanguage.json')});
     console.log(grammar.scopeName);
   `);
   assert.equal(out, 'text.html.modx');
@@ -87,7 +91,7 @@ test('сам файл грамматики доступен подпутём', (
 test('путь из пакета указывает на разбираемую грамматику', () => {
   const out = runInConsumer(consumerDir, `
     const fs = require('fs');
-    const grammar = JSON.parse(fs.readFileSync(require('modx-tmlanguage'), 'utf8'));
+    const grammar = JSON.parse(fs.readFileSync(require(${JSON.stringify(PACKAGE_NAME)}), 'utf8'));
     console.log(grammar.scopeName + ' ' + Object.keys(grammar.repository).length);
   `);
   const [scopeName, ruleCount] = out.split(' ');
