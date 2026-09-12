@@ -1,7 +1,7 @@
-# Единый вид переводов строк в репозитории. Без этого git на Windows выдаёт
-# рабочую копию с CRLF, и снапшоты — файлы, которые сравниваются побайтово —
-# перестают совпадать с тем, что генерируется.
+# One form of line ending throughout the repository. Without this git on
+# Windows hands out a working copy with CRLF, and the snapshots -- files that
+# are compared byte for byte -- stop matching what is generated.
 * text=auto eol=lf
 
-# Двоичное, трогать нельзя.
+# Binary: leave it alone.
 *.wasm binary

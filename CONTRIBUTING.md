@@ -111,14 +111,68 @@ cannot be taken back:
 - The `verify` job in the release workflow refuses to publish a tag that
   disagrees with `package.json`, or one the changelog has no section for.
 
-### Publishing rights
+### Publishing rights: setting up the trusted publisher
 
 The workflow holds no npm token. It authenticates as itself through OIDC, which
 npm calls [trusted publishing](https://docs.npmjs.com/trusted-publishers), and
-that has to be configured once on the package's settings page on npmjs.com:
-publisher GitHub Actions, this repository, workflow `release.yml`. Until that is
-done the publish step fails with `404` or `E401` — after the tag has already
-been pushed.
+npm has to be told once which workflow to trust. This is a one-off manual step
+and the release cannot publish until it is done.
+
+**Before you start.** You need to be an owner or maintainer of
+`@gulomov/modx-tmlanguage` on npmjs.com, and the package has to exist there
+already — trust is configured on a package, so the very first version of a
+brand-new package still has to be published by hand. That is not the case here:
+the package has been published since 1.0.0.
+
+**On npmjs.com.**
+
+1. Sign in and open the package page:
+   <https://www.npmjs.com/package/@gulomov/modx-tmlanguage>.
+2. Open the package's **Settings** tab.
+3. Find the **Trusted Publisher** section and choose **GitHub Actions**.
+4. Fill in the three fields that identify the workflow, exactly:
+   - organization or user: `GulomovCreative`
+   - repository: `modx-tmlanguage`
+   - workflow filename: `release.yml` — the file name only, with its extension,
+     not a path and not the `name:` inside the file.
+5. Leave the environment field empty. The release job does not run in a GitHub
+   Actions environment, and a value here would be one more thing that has to
+   match.
+6. Save.
+
+The trust is pinned to that org / repository / workflow-filename triple.
+Renaming `release.yml`, moving the repository, or publishing from a different
+workflow breaks it, and the fix is to update the same form.
+
+**What already holds on this side**, so there is nothing to do in the
+repository:
+
+- `.github/workflows/release.yml` grants the publish job `id-token: write`,
+  which is what lets it request an OIDC token at all.
+- The job installs a current npm before publishing. Trusted publishing needs
+  npm 11.5.1 or newer, and the npm bundled with Node 22 is older.
+- The publish step passes no token and no `--provenance`: publishing this way
+  generates the provenance attestation on its own.
+
+**Check that it worked.** After the next release the version on npm carries a
+provenance badge linking back to the workflow run that built it. Nothing else
+needs to be looked at.
+
+**When it does not work.**
+
+- `404 Not Found` or `E401` on the publish step almost always means the trust
+  is not configured, or one of the three fields does not match — a typo in the
+  repository name, or a path rather than a bare filename in the workflow field.
+- `E403` or a demand for a one-time password means npm is still expecting a
+  human or a token for this package; check the package's publishing access
+  settings on the same Settings tab.
+- Either way the tag has already been pushed. See below for how to retry.
+
+**Afterwards.** Any automation token that existed only to publish this package
+can be deleted from your npm account. A token that cannot be used is one that
+cannot leak.
+
+### One other thing the release depends on
 
 The package is published under the `@gulomov` scope, so `publishConfig.access`
 is set to `public` in the manifest. Without it npm publishes scoped packages

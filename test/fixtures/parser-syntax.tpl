@@ -1,5 +1,5 @@
 [[*#pagetitle]]
 [[!Snippet? &amp;limit=`5`]]
-[[+ph:default=`он сказал ``привет`` вчера`]]
+[[+ph:default=`he said ``hello`` yesterday`]]
 [[!Snippet? &tpl=row &limit=5]]
-[[+ph:default=`значение [[*id]] внутри`]]
+[[+ph:default=`value [[*id]] inside`]]

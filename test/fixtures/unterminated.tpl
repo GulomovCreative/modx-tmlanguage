@@ -1,10 +1,10 @@
 [[Snippet
 &forgot=`to close`
 
-обычная разметка после пустой строки
-[[- незакрытый комментарий
+ordinary markup after a blank line
+[[- unterminated comment
 
-<p>и тут уже нормальный HTML</p>
+<p>and here is normal HTML again</p>
 [[!pdoResources?
   &parents=`5`
   &limit=`10`

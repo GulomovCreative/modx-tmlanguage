@@ -1,12 +1,13 @@
 'use strict';
 
-// Проверка того, что получает установивший пакет, а не того, что лежит в
-// репозитории. Разница принципиальная: поле exports в package.json меняет
-// разрешение имён, поэтому подключение файла напрямую по относительному пути
-// (как в grammar.test.js) успешно проходит даже тогда, когда сам пакет сломан.
+// Checks what someone who installs the package gets, rather than what sits in
+// the repository. The difference is not cosmetic: the exports field in
+// package.json changes how names resolve, so loading a file by relative path
+// (as grammar.test.js does) keeps passing even when the package itself is
+// broken for everyone installing it.
 //
-// Тест собирает тарбол через npm pack, ставит его в пустой проект и
-// подключает по имени — и из CommonJS, и из ESM.
+// The tarball is built with npm pack, installed into an empty project and
+// loaded by name -- from CommonJS and from ESM alike.
 
 const fs = require('fs');
 const os = require('os');
@@ -17,20 +18,19 @@ const assert = require('node:assert/strict');
 
 const ROOT = path.resolve(__dirname, '..');
 
-// Имя берётся из манифеста, а не пишется здесь: иначе при переименовании
-// пакета тесты продолжили бы проверять старое имя и ничего бы не заметили.
+// Taken from the manifest rather than written here: spelling it out twice
+// means a rename leaves these tests checking the old name and passing.
 const PACKAGE_NAME = require(path.join(ROOT, 'package.json')).name;
 
 /**
- * Окружение для вложенного вызова npm. Родительский npm передаёт свою
- * конфигурацию через переменные npm_config_*, и они наследуются дочерним
- * процессом. Для --dry-run это означает, что npm install внутри теста
- * ничего не устанавливает и тест падает на разрешении модуля — то есть
- * `npm publish --dry-run` не проходит на здоровом коде.
+ * The environment for a nested npm call. The parent npm passes its own
+ * configuration down through npm_config_* variables, and a child process
+ * inherits them. Under --dry-run that means the npm install inside the test
+ * installs nothing and the test fails resolving the module -- that is,
+ * `npm publish --dry-run` fails on a package that is perfectly fine.
  *
- * Настоящая публикация этим не задета: там переменная не выставлена. Но
- * сухой прогон — главный способ проверить релиз заранее, и он должен
- * работать.
+ * A real publish is unaffected: the variable is not set there. But a dry run
+ * is the main way to check a release in advance, and it has to work.
  */
 function nestedNpmEnv() {
   const env = { ...process.env };
@@ -39,18 +39,18 @@ function nestedNpmEnv() {
 }
 
 /**
- * Как именно запускать npm.
+ * How exactly to run npm.
  *
- * На Windows npm — это npm.cmd, а Node начиная с 18.20.2 отказывается
- * запускать .cmd и .bat без shell (исправление CVE-2024-27980) и падает с
- * EINVAL. Поэтому:
+ * On Windows npm is npm.cmd, and Node since 18.20.2 refuses to spawn .cmd and
+ * .bat without a shell (the fix for CVE-2024-27980) and fails with EINVAL.
+ * Hence:
  *
- * 1. Если тест запущен самим npm, тот передаёт в npm_execpath путь к своему
- *    JS-файлу. Запускаем его текущим Node — никакого .cmd, одинаково на всех
- *    системах. Это и есть случай prepublishOnly, то есть публикации.
- * 2. Иначе (node --test напрямую) на Windows зовём npm через shell, экранируя
- *    аргументы: Node при shell не экранирует их сам, а во временных путях
- *    встречаются пробелы.
+ * 1. When the test is run by npm itself, npm points npm_execpath at its own JS
+ *    file. That is run with the node already executing -- no .cmd, and the same
+ *    on every system. This is the prepublishOnly case, that is, publishing.
+ * 2. Otherwise (node --test directly) on Windows npm is called through a shell,
+ *    with the arguments quoted: node does not quote them itself when using a
+ *    shell, and temporary paths contain spaces.
  */
 function npmCommand(args) {
   const viaNpm = process.env.npm_execpath;
@@ -74,10 +74,10 @@ function npm(args, cwd) {
   });
 }
 
-/** Собирает пакет и ставит его в одноразовый проект. Возвращает путь проекта. */
+/** Packs the package and installs it into a throwaway project. Returns its path. */
 function installPackedPackage() {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'modx-tmlanguage-pack-'));
-  // prepublishOnly запускает тесты; изнутри теста это дало бы рекурсию.
+  // prepublishOnly runs the test suite; from inside the suite that recurses.
   const packed = npm(['pack', '--ignore-scripts', '--pack-destination', dir], ROOT).trim().split('\n').pop();
   fs.writeFileSync(
     path.join(dir, 'package.json'),
@@ -87,7 +87,7 @@ function installPackedPackage() {
   return dir;
 }
 
-/** Выполняет код в установленном проекте и возвращает напечатанное. */
+/** Runs code inside the installed project and returns what it printed. */
 function runInConsumer(dir, code, moduleType) {
   const args = moduleType === 'esm' ? ['--input-type=module', '-e', code] : ['-e', code];
   return execFileSync(process.execPath, args, { cwd: dir, encoding: 'utf8' }).trim();
@@ -103,29 +103,29 @@ test.after(() => {
   if (consumerDir) fs.rmSync(consumerDir, { recursive: true, force: true });
 });
 
-test('require по имени пакета отдаёт путь к файлу грамматики', () => {
+test('require by package name gives the path to the grammar file', () => {
   const out = runInConsumer(consumerDir, `
     const grammarPath = require(${JSON.stringify(PACKAGE_NAME)});
     if (typeof grammarPath !== 'string') {
-      throw new Error('ожидалась строка с путём, получено: ' + typeof grammarPath);
+      throw new Error('expected a path string, got ' + typeof grammarPath);
     }
-    console.log(require('fs').existsSync(grammarPath) ? 'ok' : 'файла нет: ' + grammarPath);
+    console.log(require('fs').existsSync(grammarPath) ? 'ok' : 'no such file: ' + grammarPath);
   `);
   assert.equal(out, 'ok');
 });
 
-test('import по имени пакета отдаёт тот же путь', () => {
+test('import by package name gives the same path', () => {
   const out = runInConsumer(consumerDir, `
     const { default: grammarPath } = await import(${JSON.stringify(PACKAGE_NAME)});
     if (typeof grammarPath !== 'string') {
-      throw new Error('ожидалась строка с путём, получено: ' + typeof grammarPath);
+      throw new Error('expected a path string, got ' + typeof grammarPath);
     }
     console.log('ok');
   `, 'esm');
   assert.equal(out, 'ok');
 });
 
-test('сам файл грамматики доступен подпутём', () => {
+test('the grammar file itself is reachable by subpath', () => {
   const out = runInConsumer(consumerDir, `
     const grammar = require(${JSON.stringify(PACKAGE_NAME + '/modx.tmLanguage.json')});
     console.log(grammar.scopeName);
@@ -133,7 +133,7 @@ test('сам файл грамматики доступен подпутём', (
   assert.equal(out, 'text.html.modx');
 });
 
-test('путь из пакета указывает на разбираемую грамматику', () => {
+test('the path from the package points at a grammar that parses', () => {
   const out = runInConsumer(consumerDir, `
     const fs = require('fs');
     const grammar = JSON.parse(fs.readFileSync(require(${JSON.stringify(PACKAGE_NAME)}), 'utf8'));
@@ -141,78 +141,78 @@ test('путь из пакета указывает на разбираемую 
   `);
   const [scopeName, ruleCount] = out.split(' ');
   assert.equal(scopeName, 'text.html.modx');
-  assert.ok(Number(ruleCount) > 0, 'в грамматике нет правил');
+  assert.ok(Number(ruleCount) > 0, 'the grammar has no rules');
 });
 
-// --- Метаданные ------------------------------------------------------------
-// Поля, по которым npm строит страницу пакета. Ошибка в них не ломает код и
-// потому легко живёт незамеченной, пока кто-то не пойдёт искать, куда сообщить
-// об ошибке, и не обнаружит, что ссылки нет.
+// --- Metadata --------------------------------------------------------------
+// The fields npm builds the package page from. An error in them breaks no code
+// and so survives unnoticed, until someone goes looking for where to report a
+// bug and finds there is no link.
 
-test('метаданные пакета заполнены и в формате, который понимает npm', () => {
+test('the manifest is filled in, in the form npm understands', () => {
   const pkg = require(path.join(ROOT, 'package.json'));
 
   assert.match(
     pkg.repository.url,
     /^git\+https:\/\//,
-    'npm ожидает repository.url в форме git+https://…, иначе ссылка на исходники не строится'
+    'npm expects repository.url as git+https://…, or it builds no link to the sources'
   );
-  assert.ok(pkg.bugs && pkg.bugs.url, 'без bugs.url на странице пакета нет ссылки «сообщить об ошибке»');
-  assert.ok(pkg.homepage, 'нет homepage');
-  assert.ok(pkg.engines && pkg.engines.node, 'не указана минимальная версия Node');
+  assert.ok(pkg.bugs && pkg.bugs.url, 'without bugs.url the package page has no report-a-bug link');
+  assert.ok(pkg.homepage, 'no homepage');
+  assert.ok(pkg.engines && pkg.engines.node, 'no minimum Node version is declared');
 
   const repo = 'https://github.com/GulomovCreative/modx-tmlanguage';
-  assert.ok(pkg.bugs.url.startsWith(repo), 'bugs.url ведёт не в этот репозиторий');
-  assert.ok(pkg.homepage.startsWith(repo), 'homepage ведёт не в этот репозиторий');
+  assert.ok(pkg.bugs.url.startsWith(repo), 'bugs.url points at another repository');
+  assert.ok(pkg.homepage.startsWith(repo), 'homepage points at another repository');
 });
 
-test('в LICENSE указан автор пакета', () => {
-  // Файл лицензии и манифест — два независимых места, где записан
-  // правообладатель. Разойтись они могут незаметно: лицензия почти никогда
-  // не открывается, а публикуется при этом в каждом релизе.
+test('LICENSE names the author from the manifest', () => {
+  // The licence file and the manifest are two independent places recording the
+  // copyright holder, and they can drift apart quietly: the licence is almost
+  // never opened, and is published in every release.
   const pkg = require(path.join(ROOT, 'package.json'));
   const license = fs.readFileSync(path.join(ROOT, 'LICENSE'), 'utf8');
 
   assert.ok(
     license.includes(pkg.author.name),
-    'в LICENSE нет имени автора из package.json: ' + pkg.author.name
+    'LICENSE does not name the author from package.json: ' + pkg.author.name
   );
-  assert.match(license, /^Copyright \(c\) \d{4} /m, 'строка копирайта не в ожидаемом виде');
+  assert.match(license, /^Copyright \(c\) \d{4} /m, 'the copyright line is not in the expected shape');
 });
 
-test('вложенный npm не наследует --dry-run родительского процесса', () => {
-  // Прямая проверка причины, по которой npm publish --dry-run падал:
-  // переменная должна быть снята именно для дочернего процесса, а не
-  // глобально, иначе тест менял бы окружение всего прогона.
+test('a nested npm does not inherit --dry-run from the parent process', () => {
+  // A direct check of why npm publish --dry-run used to fail: the variable has
+  // to be cleared for the child process specifically, not globally, or the test
+  // would change the environment of the whole run.
   const before = process.env.npm_config_dry_run;
   process.env.npm_config_dry_run = 'true';
   try {
     assert.equal('npm_config_dry_run' in nestedNpmEnv(), false);
-    assert.equal(process.env.npm_config_dry_run, 'true', 'окружение процесса изменено');
+    assert.equal(process.env.npm_config_dry_run, 'true', 'the process environment was modified');
   } finally {
     if (before === undefined) delete process.env.npm_config_dry_run;
     else process.env.npm_config_dry_run = before;
   }
 });
 
-test('npm запускается без обращения к .cmd, когда его путь известен', () => {
-  // Windows: Node с 18.20.2 не запускает .cmd без shell и падает с EINVAL.
-  // Под самим npm обходимся его JS-файлом и текущим Node.
+test('npm is run without touching .cmd when its path is known', () => {
+  // Windows: Node since 18.20.2 will not spawn .cmd without a shell and fails
+  // with EINVAL. Under npm itself its JS file and the current node will do.
   const before = process.env.npm_execpath;
   process.env.npm_execpath = '/opt/npm/bin/npm-cli.js';
   try {
     const command = npmCommand(['pack']);
     assert.equal(command.file, process.execPath);
     assert.deepEqual(command.args, ['/opt/npm/bin/npm-cli.js', 'pack']);
-    assert.equal(command.shell, false, 'shell не нужен, когда путь к JS известен');
+    assert.equal(command.shell, false, 'no shell is needed when the JS path is known');
   } finally {
     if (before === undefined) delete process.env.npm_execpath;
     else process.env.npm_execpath = before;
   }
 });
 
-test('обёртка npm-cli.js не используется, если путь не на JS', () => {
-  // npm_execpath может указывать на .cmd — тогда запускать его через Node нельзя.
+test('the npm-cli.js route is not taken when the path is not JS', () => {
+  // npm_execpath may point at a .cmd, which cannot be run through node.
   const before = process.env.npm_execpath;
   process.env.npm_execpath = 'C:\\Program Files\\nodejs\\npm.cmd';
   try {
@@ -223,10 +223,10 @@ test('обёртка npm-cli.js не используется, если путь
   }
 });
 
-test('бейджи в README ведут на этот репозиторий и этот пакет', () => {
-  // Бейджи копируют из других проектов чаще, чем пишут с нуля, и чужой
-  // адрес в них выглядит совершенно нормально — зелёная галочка от чужого
-  // CI ничем не отличается на вид.
+test('the README badges point at this repository and this package', () => {
+  // Badges are copied from other projects more often than written from scratch,
+  // and someone else's address in one looks perfectly normal -- a green tick
+  // from another project's CI looks no different.
   const pkg = require(path.join(ROOT, 'package.json'));
   const readme = fs.readFileSync(path.join(ROOT, 'README.md'), 'utf8');
   const badges = readme.slice(0, readme.indexOf('\n\nPrevious'));
@@ -235,34 +235,34 @@ test('бейджи в README ведут на этот репозиторий и 
   const foreign = [...badges.matchAll(/github\.com\/([\w.-]+\/[\w.-]+)/g)]
     .map((match) => match[1])
     .filter((slug) => slug !== repo);
-  assert.deepEqual(foreign, [], 'бейдж ведёт в чужой репозиторий');
+  assert.deepEqual(foreign, [], 'a badge points at another repository');
 
   assert.ok(
     badges.includes('/npm/v/' + pkg.name),
-    'бейдж версии не про пакет ' + pkg.name
+    'the version badge is not about the package ' + pkg.name
   );
   assert.ok(
     badges.includes('npmjs.com/package/' + pkg.name),
-    'ссылка бейджа версии ведёт не на пакет ' + pkg.name
+    'the version badge links to another package: ' + pkg.name
   );
   assert.ok(
     badges.includes('license-' + pkg.license + '-'),
-    'бейдж лицензии не совпадает с полем license: ' + pkg.license
+    'the licence badge disagrees with the license field: ' + pkg.license
   );
 });
 
-// --- Состав тарбола --------------------------------------------------------
-// Тесты выше проверяют, что установленный пакет работает. Здесь — что в него
-// попадает ровно то, что задумано: лишний файл в архиве заметить иначе можно
-// только вручную, а публикация необратима.
+// --- What is published -----------------------------------------------------
+// The tests above check that the installed package works. This one checks that
+// it holds exactly what was intended: a stray file in the archive is otherwise
+// only visible to whoever thinks to look, and a publish cannot be taken back.
 //
-// Проверка раньше жила отдельным шагом в CI и потому не запускалась локально —
-// о лишнем файле сообщал уже сервер. Здесь она идёт вместе с остальными и в
-// том числе перед публикацией, через prepublishOnly.
+// The check used to be a step of its own in CI and so never ran locally -- the
+// server was the one reporting a stray file. Here it runs with everything else,
+// including before a publish, through prepublishOnly.
 
-// Список записан здесь, а не выводится из package.json: вывод из того же поля
-// files, которое и правят, не поймал бы ничего. README, LICENSE и package.json
-// npm кладёт в архив сам, независимо от files.
+// Written out here rather than derived from package.json: deriving it from the
+// same files field that gets edited would catch nothing. README.md, LICENSE and
+// package.json are added by npm itself, whatever files says.
 const EXPECTED_FILES = [
   'LICENSE',
   'README.md',
@@ -271,13 +271,13 @@ const EXPECTED_FILES = [
   'package.json',
 ];
 
-test('в тарбол попадают ровно ожидаемые файлы', () => {
+test('the tarball holds exactly the expected files', () => {
   const [tarball] = JSON.parse(npm(['pack', '--dry-run', '--json', '--ignore-scripts'], ROOT));
   const actual = tarball.files.map((file) => file.path).sort();
 
   assert.deepEqual(
     actual,
     [...EXPECTED_FILES].sort(),
-    'состав пакета изменился. Если это намеренно, обновите EXPECTED_FILES в этом тесте'
+    'the contents of the package changed. If that is intended, update EXPECTED_FILES here'
   );
 });

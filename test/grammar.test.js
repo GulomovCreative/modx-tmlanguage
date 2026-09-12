@@ -8,37 +8,37 @@ const assert = require('node:assert/strict');
 const { tokenize, tokensWithScope, normalizeNewlines, GRAMMAR_PATH } = require('./tokenize');
 const { fixtureNames, snapshotPathFor, buildSnapshot } = require('./snapshot');
 
-// --- Снапшоты -------------------------------------------------------------
-// Ловят любое непреднамеренное изменение разметки. При осознанной правке
-// грамматики: npm run test:update, затем глазами проверить диff снапшотов.
+// --- Snapshots -------------------------------------------------------------
+// These catch any unintended change in tokenization. After a deliberate change
+// to the grammar: npm run test:update, then read the snapshot diff.
 
-test('снапшоты фикстур совпадают', async (t) => {
+test('the fixtures still tokenize as recorded', async (t) => {
   for (const name of fixtureNames()) {
     await t.test(name, async () => {
       const snapshotPath = snapshotPathFor(name);
       assert.ok(
         fs.existsSync(snapshotPath),
-        'нет снапшота для ' + name + ' — запустите npm run test:update'
+        'no snapshot for ' + name + ' -- run npm run test:update'
       );
       assert.equal(
         await buildSnapshot(name),
         normalizeNewlines(fs.readFileSync(snapshotPath, 'utf8')),
-        'разметка ' + name + ' изменилась; если намеренно — npm run test:update'
+        'the tokenization of ' + name + ' changed; if that was intended, npm run test:update'
       );
     });
   }
 });
 
-// --- Регрессии ------------------------------------------------------------
-// По одному тесту на каждый исправленный баг: снапшот покажет, что что-то
-// поменялось, а эти тесты — что именно сломалось.
+// --- Regressions -----------------------------------------------------------
+// One test per bug that was fixed: a snapshot says that something changed,
+// these say what broke.
 
-test('числа вне тегов не считаются числами', async () => {
+test('digits outside a tag are not numbers', async () => {
   const tokenized = await tokenize('<div class="col-6" data-id="42">v1.2.0</div>');
   assert.deepEqual(tokensWithScope(tokenized, 'constant.numeric'), []);
 });
 
-test('числа внутри тегов подсвечиваются', async () => {
+test('numbers inside a tag are highlighted', async () => {
   const tokenized = await tokenize('[[!Snippet? &depth=2 &limit=`10`]]');
   assert.deepEqual(
     tokensWithScope(tokenized, 'constant.numeric').map((token) => token.text),
@@ -46,7 +46,7 @@ test('числа внутри тегов подсвечиваются', async ()
   );
 });
 
-test('параметр без значения не съедает следующий', async () => {
+test('a valueless property does not swallow the next one', async () => {
   const tokenized = await tokenize('[[!Snippet? &flag &other=`1`]]');
   assert.deepEqual(
     tokensWithScope(tokenized, 'variable.parameter').map((token) => token.text),
@@ -54,36 +54,36 @@ test('параметр без значения не съедает следую�
   );
 });
 
-test('комментарий закрывается на первом ]] в середине строки', async () => {
-  const tokenized = await tokenize('[[- коммент ]] код: [[*id]]');
+test('a comment ends at the first ]] mid-line', async () => {
+  const tokenized = await tokenize('[[- comment ]] code: [[*id]]');
   const commented = tokensWithScope(tokenized, 'comment').map((token) => token.text).join('');
-  assert.equal(commented, '[[- коммент ]]');
-  // Тег после комментария разбирается как обычный тег.
+  assert.equal(commented, '[[- comment ]]');
+  // The tag after the comment is parsed as an ordinary tag.
   assert.deepEqual(
     tokensWithScope(tokenized, 'variable.other.resource').map((token) => token.text),
     ['id']
   );
 });
 
-test('вложенный тег не закрывает комментарий и остаётся комментарием', async () => {
-  const tokenized = await tokenize('[[- коммент [[+ph]] ещё ]] хвост');
+test('a nested tag neither ends the comment nor escapes it', async () => {
+  const tokenized = await tokenize('[[- comment [[+ph]] more ]] tail');
   const commented = tokensWithScope(tokenized, 'comment').map((token) => token.text).join('');
-  assert.equal(commented, '[[- коммент [[+ph]] ещё ]]');
-  // Инъекция не должна пробивать внутрь комментария.
+  assert.equal(commented, '[[- comment [[+ph]] more ]]');
+  // The injection must not reach inside a comment.
   assert.deepEqual(tokensWithScope(tokenized, 'meta.tag'), []);
 });
 
-test('незакрытый комментарий не течёт за пределы своего ]]', async () => {
-  const tokenized = await tokenize('[[- первый ]]\nобычный текст\n[[- второй ]]');
+test('a comment does not leak past its own ]]', async () => {
+  const tokenized = await tokenize('[[- first ]]\nordinary text\n[[- second ]]');
   assert.equal(tokenized[1].tokens.every((token) => !token.scopes.some((s) => s.startsWith('comment'))), true);
 });
 
-// --- Типы элементов -------------------------------------------------------
-// Каждый тип тега MODX должен получать свой scope: в шаблоне [[*pagetitle]] и
-// [[pdoResources]] — разные сущности, темы должны уметь их различать.
-// Символы типов взяты из switch ($token) в modParser.php.
+// --- Element types ---------------------------------------------------------
+// Every MODX element type gets a scope of its own: in a template [[*pagetitle]]
+// and [[pdoResources]] are different things, and a theme has to be able to tell
+// them apart. The token characters come from switch ($token) in modParser.php.
 
-test('каждый тип элемента получает свой scope', async () => {
+test('each element type gets its own scope', async () => {
   const cases = [
     ['[[pdoResources]]', 'entity.name.function.modx'],
     ['[[$chunk]]', 'entity.name.type.chunk.modx'],
@@ -96,11 +96,11 @@ test('каждый тип элемента получает свой scope', asy
   for (const [source, expected] of cases) {
     const tokenized = await tokenize(source);
     const names = tokensWithScope(tokenized, expected).map((token) => token.text);
-    assert.equal(names.length, 1, source + ' — ожидался ровно один токен со scope ' + expected);
+    assert.equal(names.length, 1, source + ' -- expected exactly one token scoped ' + expected);
   }
 });
 
-test('флаг ! не мешает определить тип элемента', async () => {
+test('the ! flag does not hide the element type', async () => {
   const tokenized = await tokenize('[[!$chunk]] [[!+ph]] [[!*tv]] [[!~1]] [[!%lex]]');
   assert.equal(tokensWithScope(tokenized, 'keyword.control.uncached').length, 5);
   for (const scope of [
@@ -110,76 +110,76 @@ test('флаг ! не мешает определить тип элемента'
     'constant.other.link',
     'variable.other.lexicon',
   ]) {
-    assert.equal(tokensWithScope(tokenized, scope).length, 1, 'не найден ' + scope);
+    assert.equal(tokensWithScope(tokenized, scope).length, 1, 'not found: ' + scope);
   }
 });
 
-// --- Границы незакрытых конструкций ---------------------------------------
-// У тегов, комментариев и timing-тегов не было ограничителя, поэтому одна
-// забытая закрывающая скобка красила весь остаток файла. Ограничитель —
-// пустая строка: многострочные вызовы сниппетов законны и распространены,
-// поэтому привязать к концу строки нельзя.
+// --- Where an unterminated construct stops ---------------------------------
+// Tags, comments and timing tags had no terminator, so one forgotten closing
+// bracket coloured the rest of the file. The terminator is a blank line:
+// multi-line snippet calls are legal and common, so the end of a line cannot be
+// used.
 
-test('незакрытый тег не переживает пустую строку', async () => {
-  const tokenized = await tokenize('[[Snippet\n\nобычный текст\nи ещё');
+test('an unterminated tag does not survive a blank line', async () => {
+  const tokenized = await tokenize('[[Snippet\n\nordinary text\nand more');
   const inTag = (line) => line.tokens.some((t) => t.scopes.some((s) => s.startsWith('meta.tag')));
-  assert.equal(inTag(tokenized[0]), true, 'первая строка должна быть тегом');
-  assert.equal(inTag(tokenized[2]), false, 'текст после пустой строки не должен быть в теге');
+  assert.equal(inTag(tokenized[0]), true, 'the first line should be inside the tag');
+  assert.equal(inTag(tokenized[2]), false, 'text after the blank line should not be inside the tag');
   assert.equal(inTag(tokenized[3]), false);
 });
 
-test('незакрытый комментарий не переживает пустую строку', async () => {
-  const tokenized = await tokenize('[[- коммент\n\n<p>разметка</p>');
+test('an unterminated comment does not survive a blank line', async () => {
+  const tokenized = await tokenize('[[- comment\n\n<p>markup</p>');
   const commented = tokenized[2].tokens.some((t) => t.scopes.some((s) => s.startsWith('comment')));
   assert.equal(commented, false);
 });
 
-test('законный многострочный тег не ломается', async () => {
-  const tokenized = await tokenize('[[!pdoResources?\n  &parents=`5`\n  &limit=`10`\n]]\nпосле');
+test('a legal multi-line tag is not broken', async () => {
+  const tokenized = await tokenize('[[!pdoResources?\n  &parents=`5`\n  &limit=`10`\n]]\nafter');
   for (const index of [0, 1, 2, 3]) {
     assert.equal(
       tokenized[index].tokens.some((t) => t.scopes.some((s) => s.startsWith('meta.tag'))),
       true,
-      'строка ' + (index + 1) + ' должна оставаться внутри тега'
+      'line ' + (index + 1) + ' should still be inside the tag'
     );
   }
   assert.equal(
     tokenized[4].tokens.some((t) => t.scopes.some((s) => s.startsWith('meta.tag'))),
     false,
-    'после закрытия тег продолжаться не должен'
+    'the tag should not continue past its close'
   );
 });
 
-// --- Ложные срабатывания на [[ ---------------------------------------------
+// --- False positives on [[ -------------------------------------------------
 
-test('голая [[ в строке не открывает тег', async () => {
+test('a bare [[ does not open a tag', async () => {
   for (const source of ['a { content: "[["; }', 'var s = "[[";']) {
     const tokenized = await tokenize(source);
     assert.deepEqual(
       tokensWithScope(tokenized, 'meta.tag'),
       [],
-      source + ' — не должно разбираться как тег'
+      source + ' -- should not parse as a tag'
     );
   }
 });
 
-test('законные формы имени сохранены', async () => {
-  // Парсер делает trim() над именем, поэтому пробелы внутри скобок допустимы.
-  // Имя может быть и вложенным тегом — это динамический вызов.
+test('the legal shapes of a name still parse', async () => {
+  // The parser trims the name, so spaces inside the brackets are allowed.
+  // A name may itself be a tag -- that is a dynamic call.
   for (const source of ['[[Snippet]]', '[[ Snippet ]]', '[[[[+dynamicName]]]]', '[[$[[+chunkName]]]]']) {
     const tokenized = await tokenize(source);
     assert.ok(
       tokensWithScope(tokenized, 'meta.tag').length > 0,
-      source + ' — должно оставаться тегом'
+      source + ' -- should still be a tag'
     );
   }
 });
 
-// --- Синтаксис из исходника парсера ---------------------------------------
-// Каждый случай сверен с core/src/Revolution/modParser.php.
+// --- Syntax read off the parser's source -----------------------------------
+// Every case here was checked against core/src/Revolution/modParser.php.
 
-test('# после * относится к символу типа, а не к имени', async () => {
-  // case '*': если следующий символ '#', парсер его срезает.
+test('a # after * belongs to the token character, not the name', async () => {
+  // case '*': when the next character is '#', the parser strips it.
   const tokenized = await tokenize('[[*#pagetitle]]');
   assert.deepEqual(
     tokensWithScope(tokenized, 'support.type.field').map((token) => token.text),
@@ -191,8 +191,8 @@ test('# после * относится к символу типа, а не к �
   );
 });
 
-test('префикс amp; не попадает в имя параметра', async () => {
-  // parsePropertyString: if (substr($propName, 0, 4) == "amp;") — префикс срезается.
+test('an amp; prefix stays out of the property name', async () => {
+  // parsePropertyString: if (substr($propName, 0, 4) == "amp;") -- it is stripped.
   const tokenized = await tokenize('[[!Snippet? &amp;limit=`5`]]');
   assert.deepEqual(
     tokensWithScope(tokenized, 'variable.parameter').map((token) => token.text),
@@ -200,18 +200,18 @@ test('префикс amp; не попадает в имя параметра', a
   );
 });
 
-test('двойной бэктик — экранирование, а не конец значения', async () => {
+test('a doubled backtick is an escape, not the end of the value', async () => {
   // parsePropertyString: str_replace("``", "`", $propValue).
-  const tokenized = await tokenize('[[+ph:default=`он сказал ``привет`` вчера`]]');
+  const tokenized = await tokenize('[[+ph:default=`he said ``hello`` yesterday`]]');
   assert.equal(tokensWithScope(tokenized, 'constant.character.escape').length, 2);
-  // Значение остаётся одной строкой: ровно одна открывающая и одна закрывающая.
+  // The value stays one string: exactly one opening and one closing backtick.
   assert.equal(tokensWithScope(tokenized, 'punctuation.definition.string.begin').length, 1);
   assert.equal(tokensWithScope(tokenized, 'punctuation.definition.string.end').length, 1);
 });
 
-test('значение без бэктиков — рабочий синтаксис, а не ошибка', async () => {
-  // parsePropertyString снимает бэктики только если они есть, поэтому
-  // &tpl=row парсится штатно и помечать его invalid нельзя.
+test('a value without backticks is working syntax, not an error', async () => {
+  // parsePropertyString strips backticks only when they are there, so &tpl=row
+  // parses fine and must not be flagged invalid.
   const tokenized = await tokenize('[[!Snippet? &tpl=row &limit=5]]');
   assert.deepEqual(
     tokensWithScope(tokenized, 'string.unquoted').map((token) => token.text),
@@ -224,17 +224,17 @@ test('значение без бэктиков — рабочий синтакс
   assert.deepEqual(tokensWithScope(tokenized, 'invalid'), []);
 });
 
-test('вложенный тег внутри значения по-прежнему разбирается', async () => {
-  const tokenized = await tokenize('[[+ph:default=`значение [[*id]] внутри`]]');
+test('a tag nested inside a value still parses', async () => {
+  const tokenized = await tokenize('[[+ph:default=`value [[*id]] inside`]]');
   assert.deepEqual(
     tokensWithScope(tokenized, 'variable.other.resource').map((token) => token.text),
     ['id']
   );
 });
 
-// --- Конвенции именования -------------------------------------------------
-// Scope, не начинающийся с распознаваемого корня, темами игнорируется:
-// токен остаётся неподсвеченным. Тест держит грамматику в конвенциях.
+// --- Naming conventions ----------------------------------------------------
+// A scope that does not start with a root themes recognise is ignored by them:
+// the token renders unstyled. These tests hold the grammar to the convention.
 
 const TEXTMATE_ROOTS = new Set([
   'comment', 'constant', 'entity', 'invalid', 'keyword', 'markup', 'meta',
@@ -258,19 +258,19 @@ function collectScopeNames(node, found = []) {
   return found;
 }
 
-test('все scope начинаются с корня, известного темам', () => {
+test('every scope starts with a root themes recognise', () => {
   const grammar = JSON.parse(fs.readFileSync(GRAMMAR_PATH, 'utf8'));
-  // Смотрим только секции с правилами: верхнеуровневые name и scopeName —
-  // это имя грамматики и её собственный scope, а не scope токенов.
+  // Only the rule sections are walked: the top-level name and scopeName are
+  // the grammar's own name and scope, not scopes of tokens.
   const names = collectScopeNames([grammar.patterns, grammar.repository, grammar.injections]);
-  assert.ok(names.length > 0, 'ни одного scope не найдено — обход сломан');
+  assert.ok(names.length > 0, 'no scopes found at all -- the walk is broken');
   const bad = names.filter((name) => !TEXTMATE_ROOTS.has(name.split('.')[0]));
-  assert.deepEqual(bad, [], 'эти scope темы не подсветят: ' + bad.join(', '));
+  assert.deepEqual(bad, [], 'themes will not colour these: ' + bad.join(', '));
 });
 
-test('каждый scope задокументирован в README', () => {
-  // Без этой проверки таблица в README протухнет на первой же правке
-  // грамматики: новый scope просто не попадёт в документацию.
+test('every scope is documented in the README', () => {
+  // Without this the table in the README goes stale on the first change to the
+  // grammar: a new scope simply never reaches the documentation.
   const grammar = JSON.parse(fs.readFileSync(GRAMMAR_PATH, 'utf8'));
   const readme = fs.readFileSync(path.resolve(__dirname, '..', 'README.md'), 'utf8');
   const names = [...new Set(collectScopeNames([grammar.patterns, grammar.repository, grammar.injections]))];
@@ -278,19 +278,19 @@ test('каждый scope задокументирован в README', () => {
   assert.deepEqual(
     undocumented,
     [],
-    'нет в README — допишите в раздел Scopes: ' + undocumented.join(', ')
+    'missing from the README -- add it to the Scopes section: ' + undocumented.join(', ')
   );
 });
 
-test('заявленные расширения файлов описаны в README', () => {
+test('the file types the grammar claims are documented', () => {
   const grammar = JSON.parse(fs.readFileSync(GRAMMAR_PATH, 'utf8'));
   const readme = fs.readFileSync(path.resolve(__dirname, '..', 'README.md'), 'utf8');
-  assert.ok(grammar.fileTypes.length > 0, 'fileTypes пуст — грамматика не включится ни на чём');
+  assert.ok(grammar.fileTypes.length > 0, 'fileTypes is empty -- the grammar activates on nothing');
   const undocumented = grammar.fileTypes.filter((type) => !readme.includes('`.' + type + '`'));
-  assert.deepEqual(undocumented, [], 'нет в README: ' + undocumented.join(', '));
+  assert.deepEqual(undocumented, [], 'not in the README: ' + undocumented.join(', '));
 });
 
-test('грамматика — валидный JSON и index.js указывает на неё', () => {
+test('the grammar is valid JSON and index.js points at it', () => {
   const grammar = JSON.parse(fs.readFileSync(GRAMMAR_PATH, 'utf8'));
   assert.equal(grammar.scopeName, 'text.html.modx');
   const exported = require(path.resolve(__dirname, '..', 'index.js'));

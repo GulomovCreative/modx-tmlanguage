@@ -10,15 +10,15 @@ line 2: "&forgot=`to close`"
   "`"                          text.html.modx meta.tag.snippet.modx string.other.modx punctuation.definition.string.end.modx
 line 3: ""
   ""                           text.html.modx
-line 4: "обычная разметка после пустой строки"
-  "обычная разметка после пустой строки" text.html.modx
-line 5: "[[- незакрытый комментарий"
+line 4: "ordinary markup after a blank line"
+  "ordinary markup after a blank line" text.html.modx
+line 5: "[[- unterminated comment"
   "[[- "                       text.html.modx comment.block.modx punctuation.definition.comment.begin.modx
-  "незакрытый комментарий"     text.html.modx comment.block.modx
+  "unterminated comment"       text.html.modx comment.block.modx
 line 6: ""
   ""                           text.html.modx
-line 7: "<p>и тут уже нормальный HTML</p>"
-  "<p>и тут уже нормальный HTML</p>" text.html.modx
+line 7: "<p>and here is normal HTML again</p>"
+  "<p>and here is normal HTML again</p>" text.html.modx
 line 8: "[[!pdoResources?"
   "[["                         text.html.modx meta.tag.snippet.modx punctuation.definition.tag.begin.modx
   "!"                          text.html.modx meta.tag.snippet.modx keyword.control.uncached.modx

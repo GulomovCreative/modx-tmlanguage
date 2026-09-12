@@ -8,11 +8,11 @@ const oniguruma = require('vscode-oniguruma');
 const GRAMMAR_PATH = path.resolve(__dirname, '..', 'modx.tmLanguage.json');
 const SCOPE_NAME = 'text.html.modx';
 
-// Грамматики HTML, JS и CSS не публикуются по отдельности, но набор Shiki —
-// это те же грамматики, что использует VS Code. Благодаря им проверяется
-// поведение MODX-тегов внутри <script>, <style> и значений HTML-атрибутов:
-// без них грамматика text.html.basic не разрешается и вся вложенная область
-// остаётся непроверенной.
+// The HTML, JS and CSS grammars are not published separately, but Shiki's set
+// is the same grammars VS Code uses. They are what makes it possible to check
+// MODX tags inside <script>, <style> and HTML attribute values: without them
+// text.html.basic does not resolve and the whole embedded area goes
+// unchecked.
 let embeddedPromise = null;
 
 function getEmbeddedGrammars() {
@@ -45,9 +45,9 @@ function getRegistry(withEmbedded) {
             return vsctm.parseRawGrammar(raw, GRAMMAR_PATH);
           }
           if (!withEmbedded) {
-            // По умолчанию вложенные грамматики не подключаются: снапшоты
-            // тогда описывают только собственные правила и не зависят от
-            // версии чужой грамматики HTML.
+            // By default the embedded grammars are left out: the snapshots
+            // then describe this grammar's own rules only, and do not depend
+            // on the version of somebody else's HTML grammar.
             return null;
           }
           const embedded = await getEmbeddedGrammars();
@@ -60,19 +60,19 @@ function getRegistry(withEmbedded) {
 }
 
 /**
- * Разбивает текст на строки и токенизирует их грамматикой MODX.
- * Возвращает массив строк вида { line, tokens: [{ text, scopes }] }.
+ * Splits text into lines and tokenizes them with the MODX grammar.
+ * Returns an array of lines shaped { line, tokens: [{ text, scopes }] }.
  */
 async function tokenize(source, { embedded = false } = {}) {
   const registry = getRegistry(embedded);
   const grammar = await registry.loadGrammar(SCOPE_NAME);
   if (!grammar) {
-    throw new Error('Не удалось загрузить грамматику ' + SCOPE_NAME);
+    throw new Error('Could not load the grammar ' + SCOPE_NAME);
   }
 
-  // Приведение переводов строк обязательно: на Windows git по умолчанию
-  // выдаёт файлы с CRLF, и наивное срезание только \n оставляло бы \r в
-  // конце последней строки — она попадала бы в разметку как символ текста.
+  // Normalizing line endings is not optional: on Windows git hands out files
+  // with CRLF by default, and naively stripping only \n would leave the \r at
+  // the end of the last line, where it would show up as a character of text.
   const lines = normalizeNewlines(source).replace(/\n$/, '').split('\n');
   const result = [];
   let ruleStack = vsctm.INITIAL;
@@ -93,14 +93,14 @@ async function tokenize(source, { embedded = false } = {}) {
 }
 
 /**
- * CRLF -> LF. Снапшоты хранятся и сравниваются в одном виде независимо от
- * того, как система разработчика и git настроены переводить строки.
+ * CRLF -> LF. Snapshots are stored and compared in one form, whatever the
+ * developer's system and git are configured to do with line endings.
  */
 function normalizeNewlines(text) {
   return text.replace(/\r\n/g, '\n');
 }
 
-/** Человекочитаемый снапшот: его диff в PR должен быть осмысленным. */
+/** A human-readable snapshot: its diff in a pull request has to mean something. */
 function formatSnapshot(tokenized) {
   const out = [];
   tokenized.forEach((entry, index) => {
@@ -112,12 +112,12 @@ function formatSnapshot(tokenized) {
   return out.join('\n') + '\n';
 }
 
-/** Все scope у всех токенов строки, сплющенные в один список. */
+/** Every scope of every token on the line, flattened into one list. */
 function scopesOf(tokenized) {
   return tokenized.flatMap((entry) => entry.tokens.flatMap((token) => token.scopes));
 }
 
-/** Токены, у которых есть scope, начинающийся с префикса. */
+/** The tokens carrying a scope that starts with the given prefix. */
 function tokensWithScope(tokenized, prefix) {
   return tokenized
     .flatMap((entry) => entry.tokens)
