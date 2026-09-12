@@ -1,7 +1,7 @@
 {
   "name": "@gulomov/modx-tmlanguage",
   "version": "1.2.0",
-  "description": "TextMate grammar files for MODX Revolution syntax for VS Code, Sublime Text, and Atom",
+  "description": "TextMate grammar for MODX Revolution tag syntax, for VS Code, Sublime Text and other editors that read TextMate grammars",
   "author": {
     "name": "Gulomov Bakhtovar",
     "email": "gulomovcreative@gmail.com"
@@ -37,9 +37,13 @@
   "homepage": "https://github.com/GulomovCreative/modx-tmlanguage#readme",
   "keywords": [
     "modx",
-    "MODX",
-    "TextMate",
-    "syntax"
+    "modx-revolution",
+    "tmlanguage",
+    "textmate",
+    "grammar",
+    "syntax-highlighting",
+    "vscode",
+    "sublime-text"
   ],
   "license": "MIT",
   "engines": {

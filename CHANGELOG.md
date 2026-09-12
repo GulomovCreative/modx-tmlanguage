@@ -43,6 +43,10 @@ distinct scopes. The README's Scopes section lists all 42.
 
 ### Changed
 
+- The package description and keywords were rewritten. The old description
+  named Atom, which was discontinued two months before this repository was
+  created, and described the package as a set of files rather than one grammar.
+
 - **The package is published under the `@gulomov` scope.** The unscoped name is
   deprecated. `publishConfig.access` is set to `public`, because npm publishes
   scoped packages privately by default.
