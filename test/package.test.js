@@ -21,11 +21,29 @@ const ROOT = path.resolve(__dirname, '..');
 // пакета тесты продолжили бы проверять старое имя и ничего бы не заметили.
 const PACKAGE_NAME = require(path.join(ROOT, 'package.json')).name;
 
+/**
+ * Окружение для вложенного вызова npm. Родительский npm передаёт свою
+ * конфигурацию через переменные npm_config_*, и они наследуются дочерним
+ * процессом. Для --dry-run это означает, что npm install внутри теста
+ * ничего не устанавливает и тест падает на разрешении модуля — то есть
+ * `npm publish --dry-run` не проходит на здоровом коде.
+ *
+ * Настоящая публикация этим не задета: там переменная не выставлена. Но
+ * сухой прогон — главный способ проверить релиз заранее, и он должен
+ * работать.
+ */
+function nestedNpmEnv() {
+  const env = { ...process.env };
+  delete env.npm_config_dry_run;
+  return env;
+}
+
 function npm(args, cwd) {
   return execFileSync(process.platform === 'win32' ? 'npm.cmd' : 'npm', args, {
     cwd,
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
+    env: nestedNpmEnv(),
   });
 }
 
@@ -133,4 +151,19 @@ test('в LICENSE указан автор пакета', () => {
     'в LICENSE нет имени автора из package.json: ' + pkg.author.name
   );
   assert.match(license, /^Copyright \(c\) \d{4} /m, 'строка копирайта не в ожидаемом виде');
+});
+
+test('вложенный npm не наследует --dry-run родительского процесса', () => {
+  // Прямая проверка причины, по которой npm publish --dry-run падал:
+  // переменная должна быть снята именно для дочернего процесса, а не
+  // глобально, иначе тест менял бы окружение всего прогона.
+  const before = process.env.npm_config_dry_run;
+  process.env.npm_config_dry_run = 'true';
+  try {
+    assert.equal('npm_config_dry_run' in nestedNpmEnv(), false);
+    assert.equal(process.env.npm_config_dry_run, 'true', 'окружение процесса изменено');
+  } finally {
+    if (before === undefined) delete process.env.npm_config_dry_run;
+    else process.env.npm_config_dry_run = before;
+  }
 });
