@@ -70,7 +70,10 @@ async function tokenize(source, { embedded = false } = {}) {
     throw new Error('Не удалось загрузить грамматику ' + SCOPE_NAME);
   }
 
-  const lines = source.replace(/\n$/, '').split(/\r?\n/);
+  // Приведение переводов строк обязательно: на Windows git по умолчанию
+  // выдаёт файлы с CRLF, и наивное срезание только \n оставляло бы \r в
+  // конце последней строки — она попадала бы в разметку как символ текста.
+  const lines = normalizeNewlines(source).replace(/\n$/, '').split('\n');
   const result = [];
   let ruleStack = vsctm.INITIAL;
 
@@ -87,6 +90,14 @@ async function tokenize(source, { embedded = false } = {}) {
   }
 
   return result;
+}
+
+/**
+ * CRLF -> LF. Снапшоты хранятся и сравниваются в одном виде независимо от
+ * того, как система разработчика и git настроены переводить строки.
+ */
+function normalizeNewlines(text) {
+  return text.replace(/\r\n/g, '\n');
 }
 
 /** Человекочитаемый снапшот: его диff в PR должен быть осмысленным. */
@@ -113,4 +124,4 @@ function tokensWithScope(tokenized, prefix) {
     .filter((token) => token.scopes.some((scope) => scope === prefix || scope.startsWith(prefix + '.')));
 }
 
-module.exports = { tokenize, formatSnapshot, scopesOf, tokensWithScope, GRAMMAR_PATH, SCOPE_NAME };
+module.exports = { tokenize, formatSnapshot, normalizeNewlines, scopesOf, tokensWithScope, GRAMMAR_PATH, SCOPE_NAME };

@@ -38,12 +38,39 @@ function nestedNpmEnv() {
   return env;
 }
 
+/**
+ * Как именно запускать npm.
+ *
+ * На Windows npm — это npm.cmd, а Node начиная с 18.20.2 отказывается
+ * запускать .cmd и .bat без shell (исправление CVE-2024-27980) и падает с
+ * EINVAL. Поэтому:
+ *
+ * 1. Если тест запущен самим npm, тот передаёт в npm_execpath путь к своему
+ *    JS-файлу. Запускаем его текущим Node — никакого .cmd, одинаково на всех
+ *    системах. Это и есть случай prepublishOnly, то есть публикации.
+ * 2. Иначе (node --test напрямую) на Windows зовём npm через shell, экранируя
+ *    аргументы: Node при shell не экранирует их сам, а во временных путях
+ *    встречаются пробелы.
+ */
+function npmCommand(args) {
+  const viaNpm = process.env.npm_execpath;
+  if (viaNpm && viaNpm.endsWith('.js')) {
+    return { file: process.execPath, args: [viaNpm, ...args], shell: false };
+  }
+  if (process.platform === 'win32') {
+    return { file: 'npm', args: args.map((arg) => '"' + arg + '"'), shell: true };
+  }
+  return { file: 'npm', args, shell: false };
+}
+
 function npm(args, cwd) {
-  return execFileSync(process.platform === 'win32' ? 'npm.cmd' : 'npm', args, {
+  const { file, args: spawnArgs, shell } = npmCommand(args);
+  return execFileSync(file, spawnArgs, {
     cwd,
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
     env: nestedNpmEnv(),
+    shell,
   });
 }
 
@@ -165,5 +192,33 @@ test('вложенный npm не наследует --dry-run родитель�
   } finally {
     if (before === undefined) delete process.env.npm_config_dry_run;
     else process.env.npm_config_dry_run = before;
+  }
+});
+
+test('npm запускается без обращения к .cmd, когда его путь известен', () => {
+  // Windows: Node с 18.20.2 не запускает .cmd без shell и падает с EINVAL.
+  // Под самим npm обходимся его JS-файлом и текущим Node.
+  const before = process.env.npm_execpath;
+  process.env.npm_execpath = '/opt/npm/bin/npm-cli.js';
+  try {
+    const command = npmCommand(['pack']);
+    assert.equal(command.file, process.execPath);
+    assert.deepEqual(command.args, ['/opt/npm/bin/npm-cli.js', 'pack']);
+    assert.equal(command.shell, false, 'shell не нужен, когда путь к JS известен');
+  } finally {
+    if (before === undefined) delete process.env.npm_execpath;
+    else process.env.npm_execpath = before;
+  }
+});
+
+test('обёртка npm-cli.js не используется, если путь не на JS', () => {
+  // npm_execpath может указывать на .cmd — тогда запускать его через Node нельзя.
+  const before = process.env.npm_execpath;
+  process.env.npm_execpath = 'C:\\Program Files\\nodejs\\npm.cmd';
+  try {
+    assert.notEqual(npmCommand(['pack']).file, process.execPath);
+  } finally {
+    if (before === undefined) delete process.env.npm_execpath;
+    else process.env.npm_execpath = before;
   }
 });
