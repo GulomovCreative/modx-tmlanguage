@@ -1,10 +1,13 @@
-# modx-tmlanguage
+# @gulomov/modx-tmlanguage
+
+Previously published as `modx-tmlanguage`; that name is deprecated and no longer
+updated.
 
 This repository contains TmLanguage files that can be consumed by [MODX Revolution](https://docs.modx.com/3.x/en/building-sites/tag-syntax) editors and plugins such as [Visual Studio Code](https://github.com/Microsoft/vscode), [Sublime Text](https://www.sublimetext.com), [Atom](https://atom.io), and possibly others.
 
 ## Installation
 ``` sh
-npm install modx-tmlanguage
+npm install @gulomov/modx-tmlanguage
 ```
 
 ## Usage
@@ -13,15 +16,15 @@ The package entry point resolves to the absolute path of the grammar file, so
 an editor integration can hand it straight to whatever loads TextMate grammars:
 
 ``` js
-const grammarPath = require('modx-tmlanguage');
-// or: import grammarPath from 'modx-tmlanguage';
+const grammarPath = require('@gulomov/modx-tmlanguage');
+// or: import grammarPath from '@gulomov/modx-tmlanguage';
 ```
 
 The grammar itself is also exported, for when the parsed object is what you
 need rather than a path:
 
 ``` js
-const grammar = require('modx-tmlanguage/modx.tmLanguage.json');
+const grammar = require('@gulomov/modx-tmlanguage/modx.tmLanguage.json');
 grammar.scopeName; // "text.html.modx"
 ```
 

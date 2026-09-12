@@ -102,6 +102,11 @@ rename `## [Unreleased]` to `## [X.Y.Z] — YYYY-MM-DD`, open a fresh empty
 file. Leave `version` in `package.json` alone — `npm version` owns it, and
 setting it by hand makes the release skip a number.
 
+The package is published under the `@gulomov` scope, so `publishConfig.access`
+is set to `public` in the manifest. Without it npm publishes scoped packages
+privately, which fails on a free account — and the failure comes after the tag
+has already been pushed.
+
 Which part to bump is decided by what the change does to the two public
 surfaces: what the package exports, and the scope names. Renaming a scope breaks
 every theme that targets it, so it is a major change even though no code fails.
