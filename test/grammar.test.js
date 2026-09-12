@@ -5,7 +5,7 @@ const path = require('path');
 const test = require('node:test');
 const assert = require('node:assert/strict');
 
-const { tokenize, tokensWithScope, GRAMMAR_PATH } = require('./tokenize');
+const { tokenize, tokensWithScope, normalizeNewlines, GRAMMAR_PATH } = require('./tokenize');
 const { fixtureNames, snapshotPathFor, buildSnapshot } = require('./snapshot');
 
 // --- Снапшоты -------------------------------------------------------------
@@ -22,7 +22,7 @@ test('снапшоты фикстур совпадают', async (t) => {
       );
       assert.equal(
         await buildSnapshot(name),
-        fs.readFileSync(snapshotPath, 'utf8'),
+        normalizeNewlines(fs.readFileSync(snapshotPath, 'utf8')),
         'разметка ' + name + ' изменилась; если намеренно — npm run test:update'
       );
     });
