@@ -1,5 +1,9 @@
 # @gulomov/modx-tmlanguage
 
+[![CI](https://github.com/GulomovCreative/modx-tmlanguage/actions/workflows/ci.yml/badge.svg)](https://github.com/GulomovCreative/modx-tmlanguage/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/@gulomov/modx-tmlanguage)](https://www.npmjs.com/package/@gulomov/modx-tmlanguage)
+[![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+
 Previously published as `modx-tmlanguage`; that name is deprecated and no longer
 updated.
 

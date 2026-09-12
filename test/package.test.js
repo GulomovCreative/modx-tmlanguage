@@ -222,3 +222,31 @@ test('обёртка npm-cli.js не используется, если путь
     else process.env.npm_execpath = before;
   }
 });
+
+test('бейджи в README ведут на этот репозиторий и этот пакет', () => {
+  // Бейджи копируют из других проектов чаще, чем пишут с нуля, и чужой
+  // адрес в них выглядит совершенно нормально — зелёная галочка от чужого
+  // CI ничем не отличается на вид.
+  const pkg = require(path.join(ROOT, 'package.json'));
+  const readme = fs.readFileSync(path.join(ROOT, 'README.md'), 'utf8');
+  const badges = readme.slice(0, readme.indexOf('\n\nPrevious'));
+
+  const repo = 'GulomovCreative/modx-tmlanguage';
+  const foreign = [...badges.matchAll(/github\.com\/([\w.-]+\/[\w.-]+)/g)]
+    .map((match) => match[1])
+    .filter((slug) => slug !== repo);
+  assert.deepEqual(foreign, [], 'бейдж ведёт в чужой репозиторий');
+
+  assert.ok(
+    badges.includes('/npm/v/' + pkg.name),
+    'бейдж версии не про пакет ' + pkg.name
+  );
+  assert.ok(
+    badges.includes('npmjs.com/package/' + pkg.name),
+    'ссылка бейджа версии ведёт не на пакет ' + pkg.name
+  );
+  assert.ok(
+    badges.includes('license-' + pkg.license + '-'),
+    'бейдж лицензии не совпадает с полем license: ' + pkg.license
+  );
+});
