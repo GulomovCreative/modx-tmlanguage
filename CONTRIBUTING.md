@@ -87,25 +87,57 @@ Releases go out from `master` with one command:
 npm run publish:major   # or publish:minor / publish:patch
 ```
 
-That runs `npm version`, which bumps `package.json`, commits, tags, pushes and
-publishes to npm. Two guards run first, because a published version cannot be
-taken back:
+That runs `npm version`, which bumps `package.json`, closes the changelog,
+commits, tags and pushes. Publishing itself happens in GitHub Actions: the
+pushed tag starts `.github/workflows/release.yml`, which runs the tests again,
+publishes to npm and opens a GitHub release with the changelog section as its
+body.
+
+So preparing a release means writing changelog entries under `## [Unreleased]`
+as you go, and nothing else. The version number, the section heading, its date,
+the fresh empty `Unreleased` and the link definitions at the foot of the file
+are all written by `scripts/version.js` during `npm version`. Leave `version` in
+`package.json` alone too — `npm version` owns it, and setting it by hand makes
+the release skip a number.
+
+Three guards run before anything is published, because a published version
+cannot be taken back:
 
 - `preversion` refuses to run from a branch other than `master`, with
   uncommitted changes, or when the branch is behind the remote.
-- `version` refuses to continue if `CHANGELOG.md` has no section for the version
-  being released, and warns if entries are left under `Unreleased`.
+- `version` refuses to continue when there is nothing under `Unreleased` to
+  release, or when the changelog has no link definition to build the comparison
+  range from.
+- The `verify` job in the release workflow refuses to publish a tag that
+  disagrees with `package.json`, or one the changelog has no section for.
 
-So preparing a release means editing the changelog, not the version number:
-rename `## [Unreleased]` to `## [X.Y.Z] — YYYY-MM-DD`, open a fresh empty
-`Unreleased` above it, and update the link definitions at the bottom of the
-file. Leave `version` in `package.json` alone — `npm version` owns it, and
-setting it by hand makes the release skip a number.
+### Publishing rights
+
+The workflow holds no npm token. It authenticates as itself through OIDC, which
+npm calls [trusted publishing](https://docs.npmjs.com/trusted-publishers), and
+that has to be configured once on the package's settings page on npmjs.com:
+publisher GitHub Actions, this repository, workflow `release.yml`. Until that is
+done the publish step fails with `404` or `E401` — after the tag has already
+been pushed.
 
 The package is published under the `@gulomov` scope, so `publishConfig.access`
 is set to `public` in the manifest. Without it npm publishes scoped packages
-privately, which fails on a free account — and the failure comes after the tag
-has already been pushed.
+privately, which fails on a free account.
+
+### When a release fails
+
+The tag is pushed before the workflow runs, so a failed publish leaves a tag
+pointing at a version that is not on npm. Fix the cause, then delete the tag
+locally and on the remote and push it again — the workflow triggers on the tag,
+so re-pushing it is what retries the release:
+
+``` sh
+git tag -d v1.2.3 && git push origin :refs/tags/v1.2.3
+git tag -a v1.2.3 -m v1.2.3 && git push origin v1.2.3
+```
+
+Do not bump the version a second time to work around a failed publish: the
+number that failed was never taken.
 
 Which part to bump is decided by what the change does to the two public
 surfaces: what the package exports, and the scope names. Renaming a scope breaks

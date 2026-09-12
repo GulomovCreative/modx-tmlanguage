@@ -6,6 +6,17 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- Releases are published by GitHub Actions from the pushed tag, not from a
+  maintainer's machine. Packages published this way carry npm
+  [provenance](https://docs.npmjs.com/generating-provenance-statements): the
+  package page states which repository, workflow and commit built the tarball,
+  and npm verifies that statement itself. Nothing changes in how the package is
+  installed or used.
+- Every release now gets a GitHub release with the changelog section for that
+  version as its body. Previously tags were pushed without one.
+
 ## [2.0.0] — 2026-09-12
 
 A major release for three independent reasons: the package moved to a scoped

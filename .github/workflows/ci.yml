@@ -4,6 +4,13 @@ on:
   push:
     branches: [master]
   pull_request:
+  # Тесты идут поверх сторонних грамматик (shiki, vscode-textmate), и те живут
+  # своей жизнью. package-lock закрепляет версии, поэтому их обновление видно
+  # только в PR от dependabot — раз в месяц. Еженедельный прогон на свежих
+  # версиях показывает поломку раньше и отдельно от изменений в коде.
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
 
 # Workflow только читает репозиторий: ни публикаций, ни комментариев, ни
 # записи в ветки. Явное указание закрывает запись на случай, если права по
@@ -49,22 +56,27 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci
-      # Тесты проверяют, что установленный пакет работает. Здесь — что в него
-      # попадает ровно то, что задумано: лишний файл в тарболе заметить иначе
-      # можно только вручную, а публикация необратима.
-      - name: Сверить список файлов тарбола
-        run: |
-          ACTUAL=$(npm pack --dry-run --json --ignore-scripts \
-            | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{
-                console.log(JSON.parse(s)[0].files.map(f=>f.path).sort().join('\n'));
-              })")
-          EXPECTED=$(printf 'LICENSE\nREADME.md\nindex.js\nmodx.tmLanguage.json\npackage.json')
-          if [ "$ACTUAL" != "$EXPECTED" ]; then
-            echo "Состав пакета изменился."
-            echo "--- ожидалось ---"; echo "$EXPECTED"
-            echo "--- получено ---";  echo "$ACTUAL"
-            echo
-            echo "Если это намеренно, обновите список в .github/workflows/ci.yml."
-            exit 1
-          fi
-          echo "Состав пакета не изменился:"; echo "$ACTUAL"
+      # Тесты проверяют, что установленный пакет работает. Этот файл — что в
+      # него попадает ровно то, что задумано. Он входит и в npm test, то есть
+      # идёт на всех версиях Node; отдельным job-ом он остаётся потому, что
+      # это отдельная проверка с собственным именем в списке статусов.
+      - name: Сверить состав тарбола
+        run: node --test test/package.test.js
+
+  fresh-deps:
+    name: Свежие зависимости
+    # Только по расписанию и по кнопке: на каждый PR это ставило бы проверку в
+    # зависимость от чужих релизов, и красный статус означал бы не то, что с
+    # изменением что-то не так.
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      # Без package-lock: ставятся самые свежие версии, разрешённые диапазонами
+      # в package.json. Именно то, что получит человек, клонировавший репозиторий
+      # сегодня.
+      - run: npm install --no-package-lock --no-audit --no-fund
+      - run: npm test
