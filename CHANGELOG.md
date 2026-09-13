@@ -6,6 +6,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [2.0.2] — 2026-09-13
+
 ### Added
 
 - A language configuration, published alongside the grammar. It is the half of
@@ -198,7 +200,8 @@ distinct scopes. The README's Scopes section lists all 42.
 
 - First public release.
 
-[Unreleased]: https://github.com/GulomovCreative/modx-tmlanguage/compare/v2.0.1...HEAD
+[Unreleased]: https://github.com/GulomovCreative/modx-tmlanguage/compare/v2.0.2...HEAD
+[2.0.2]: https://github.com/GulomovCreative/modx-tmlanguage/compare/v2.0.1...v2.0.2
 [2.0.1]: https://github.com/GulomovCreative/modx-tmlanguage/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/GulomovCreative/modx-tmlanguage/compare/v1.2.0...v2.0.0
 [1.2.0]: https://github.com/GulomovCreative/modx-tmlanguage/releases/tag/v1.2.0
