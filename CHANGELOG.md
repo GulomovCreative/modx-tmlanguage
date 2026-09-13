@@ -6,6 +6,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [2.0.1] — 2026-09-13
+
 ### Changed
 
 - Releases are published by GitHub Actions from the pushed tag, not from a
@@ -168,6 +170,7 @@ distinct scopes. The README's Scopes section lists all 42.
 
 - First public release.
 
-[Unreleased]: https://github.com/GulomovCreative/modx-tmlanguage/compare/v2.0.0...HEAD
+[Unreleased]: https://github.com/GulomovCreative/modx-tmlanguage/compare/v2.0.1...HEAD
+[2.0.1]: https://github.com/GulomovCreative/modx-tmlanguage/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/GulomovCreative/modx-tmlanguage/compare/v1.2.0...v2.0.0
 [1.2.0]: https://github.com/GulomovCreative/modx-tmlanguage/releases/tag/v1.2.0

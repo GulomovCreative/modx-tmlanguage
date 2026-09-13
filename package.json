@@ -1,6 +1,6 @@
 {
   "name": "@gulomov/modx-tmlanguage",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "TextMate grammar for MODX Revolution tag syntax, for VS Code, Sublime Text and other editors that read TextMate grammars",
   "author": {
     "name": "Gulomov Bakhtovar",
