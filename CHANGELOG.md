@@ -6,6 +6,37 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- A language configuration, published alongside the grammar. It is the half of
+  editor support that is not colour: `[[` pairs with `]]` for bracket matching
+  and selection, the comment command writes `[[- … ]]`, and backticks and quotes
+  close as you type. Reachable as
+  `@gulomov/modx-tmlanguage/language-configuration.json`; the grammar alone is
+  unchanged, so nothing already using it is affected.
+- The README shows what the grammar looks like. The images in `docs/` are
+  generated from a sample template through GitHub's light and dark themes, and a
+  test fails when they drift. They are also the only check here that can see a
+  scope no theme colours — the naming and README checks confirm a scope is
+  well-formed and documented, not that anything styles it.
+- A time budget on tokenization, over deliberately awkward input. These patterns
+  run in the editor on every keystroke; one that backtracks catastrophically
+  stops the editor rather than colouring anything wrongly.
+- Fuzz checks over generated templates, holding three rules: markup carrying no
+  tag stays with the host grammar, a closed tag does not colour what follows it,
+  and nothing unterminated survives a blank line.
+- A **Cut a release** workflow: choosing patch, minor or major on the Actions
+  tab now does everything `npm version` does locally. The command-line route is
+  unchanged.
+
+### Fixed
+
+- An unterminated property value no longer colours the rest of the file. Tags,
+  comments and timing tags all stopped at a blank line; the backticked value
+  inside a tag did not, so a single forgotten backtick left everything after it
+  scoped as a string — markup, other tags and all. Found by the new fuzz checks
+  on their first run.
+
 ## [2.0.1] — 2026-09-13
 
 ### Changed

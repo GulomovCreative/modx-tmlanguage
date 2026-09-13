@@ -10,15 +10,18 @@
   "exports": {
     ".": "./index.js",
     "./modx.tmLanguage.json": "./modx.tmLanguage.json",
+    "./language-configuration.json": "./language-configuration.json",
     "./package.json": "./package.json"
   },
   "files": [
     "modx.tmLanguage.json",
+    "language-configuration.json",
     "index.js"
   ],
   "scripts": {
-    "test": "node --test test/grammar.test.js test/package.test.js test/release.test.js test/embedded.test.js",
+    "test": "node --test test/grammar.test.js test/language-configuration.test.js test/package.test.js test/release.test.js test/embedded.test.js test/preview.test.js test/fuzz.test.js test/performance.test.js",
     "test:update": "node test/snapshot.js",
+    "preview:update": "node scripts/theme-preview.js",
     "prepublishOnly": "npm test",
     "preversion": "node scripts/preversion.js",
     "version": "node scripts/version.js",
@@ -54,6 +57,7 @@
   },
   "devDependencies": {
     "@shikijs/langs": "^4.4.3",
+    "shiki": "^4.4.3",
     "vscode-oniguruma": "^2.0.1",
     "vscode-textmate": "^9.3.2"
   }
