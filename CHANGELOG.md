@@ -6,6 +6,49 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- Indentation rules in the language configuration. A snippet call written over
+  several lines now indents its properties, and the `]]` that closes it comes
+  back out level with the tag that opened it. Everything else in a template is
+  left where it is.
+
+  This completes the move of editor support out of the extension and into the
+  package, and it is a change extensions should notice: the rules the extension
+  carried before `2.0.2` were
+
+  ``` json
+  "increaseIndentPattern": "\\[\\[[^\\]\\]]*$",
+  "decreaseIndentPattern": "[^\\[\\[]*\\]\\]"
+  ```
+
+  and the second one outdented *any* line containing `]]` — `[[*pagetitle]]`,
+  `[[- a comment ]]`, a value such as `` &tpl=`x]]y` `` — because it was not
+  anchored to the start of the line. In a template with a field tag on every
+  other line, typing walked the text leftwards. (`[^\]\]]` was also just
+  `[^\]]`: doubling inside a character class means nothing.) The rules shipped
+  here are anchored, ignore `]]` inside backticked values, and do not treat
+  `[[- … ]]` as an opening. A new test suite re-indents a template from scratch
+  and requires it to come back unchanged.
+
+- A guard that every file in the published archive uses LF. Nothing is wrong
+  today — `2.0.2` unpacks with LF throughout, and `.gitattributes` already pins
+  the checkout — but the sibling Fenom grammar published CRLF from commits that
+  never contained it, and the release is cut from the same machine by the same
+  command. This is the check that the pinning held. It packs the package and
+  reads the bytes in the archive rather than in the working tree — the working
+  tree is what is being guarded, and `npm pack` packs it verbatim — and it runs
+  before every publish, where the fault can actually occur.
+
+### Changed
+
+- Folding markers stay as they are: `#region` / `#endregion` in HTML comments.
+  The extension used to fold on `^\s*\[\[` / `^\s*\]\]` instead, and those
+  are not coming back. VS Code's marker folding is line-based — a line is either
+  a start or an end, never both — so a one-line tag such as `[[*pagetitle]]`
+  would open a region that never closes and swallow the next `]]` it found. The
+  same reasoning was applied in the sibling Fenom grammar.
+
 ## [2.0.2] — 2026-09-13
 
 ### Added
