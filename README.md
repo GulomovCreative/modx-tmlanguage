@@ -19,6 +19,20 @@ Any editor that reads TextMate grammars can use it —
 [Visual Studio Code](https://code.visualstudio.com),
 [Sublime Text](https://www.sublimetext.com), and others.
 
+## What it looks like
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/preview-github-dark.svg">
+  <img alt="A MODX template highlighted by this grammar: each element type, its properties and output modifiers coloured separately, with the surrounding HTML highlighted by the editor's own grammar" src="docs/preview-github-light.svg">
+</picture>
+
+The sample is [`docs/preview.tpl`](docs/preview.tpl), rendered with GitHub's own
+light and dark themes. Both images are generated — `npm run preview:update`
+rewrites them — and a test fails if they drift from what the grammar currently
+produces. That check earns its place: a scope can be spelled correctly and
+documented and still be coloured by nothing at all, because no theme targets it,
+and only rendering through a real theme shows that.
+
 ## Installation
 ``` sh
 npm install @gulomov/modx-tmlanguage
@@ -40,6 +54,30 @@ need rather than a path:
 ``` js
 const grammar = require('@gulomov/modx-tmlanguage/modx.tmLanguage.json');
 grammar.scopeName; // "text.html.modx"
+```
+
+The package also ships a language configuration — the half of editor support
+that is not colour. It pairs `[[` with `]]` for bracket matching and selection,
+tells the comment command to write `[[- … ]]`, and closes backticks and quotes
+as you type:
+
+``` js
+const config = require('@gulomov/modx-tmlanguage/language-configuration.json');
+```
+
+In a VS Code extension the two are registered together:
+
+``` json
+{
+  "contributes": {
+    "languages": [
+      { "id": "modx", "extensions": [".tpl", ".chunk"], "configuration": "./language-configuration.json" }
+    ],
+    "grammars": [
+      { "language": "modx", "scopeName": "text.html.modx", "path": "./modx.tmLanguage.json" }
+    ]
+  }
+}
 ```
 
 ## File types
@@ -192,11 +230,29 @@ Contributors should read [CONTRIBUTING.md](CONTRIBUTING.md) — in particular th
 rule that MODX's own parser, not documentation or community advice, settles what
 the grammar should accept.
 
-After an intentional grammar change, regenerate the snapshots and review the
-diff before committing:
+Four further suites cover what snapshots cannot:
+
+- **Language configuration** — the comment marker the editor would insert is put
+  through the grammar, because a marker the editor writes and the grammar does
+  not recognise is worse than none.
+- **Previews** — the images above are re-rendered through real themes and
+  compared with the committed SVGs. This is the only check that can see a scope
+  no theme colours.
+- **Performance** — deliberately awkward input under a time budget. These
+  patterns run on every keystroke, and one that backtracks catastrophically
+  stops the editor rather than colouring anything wrongly.
+- **Fuzz** — templates generated from a fixed seed, held to three rules: markup
+  carrying no tag stays with the host grammar, a closed tag does not colour what
+  follows it, and nothing unterminated survives a blank line. The last one found
+  a real gap: a backticked value had no terminator and coloured the rest of the
+  file.
+
+After an intentional grammar change, regenerate the snapshots and the previews,
+and review both diffs before committing:
 
 ``` sh
 npm run test:update
+npm run preview:update
 ```
 
 Most tests run without the surrounding HTML grammar, so snapshots describe this

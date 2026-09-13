@@ -134,6 +134,31 @@ test('an unterminated comment does not survive a blank line', async () => {
   assert.equal(commented, false);
 });
 
+test('an unterminated backticked value does not survive a blank line', async () => {
+  // Found by the fuzz suite. Tags, comments and timing tags all carried the
+  // blank-line terminator; the value inside a tag did not, so one forgotten
+  // backtick coloured the rest of the file as a string.
+  const tokenized = await tokenize('[[+ph:default=`x\n\nplain markup 5');
+  const scoped = tokenized[2].tokens.filter((token) =>
+    token.scopes.some((scope) => scope !== 'text.html.modx' && scope.endsWith('.modx'))
+  );
+  assert.deepEqual(scoped.map((token) => token.text), [], 'the value crossed the blank line');
+});
+
+test('a backticked value still ends at its own backtick', async () => {
+  // The terminator must not cost the ordinary case its string.
+  const tokenized = await tokenize('[[!Snippet? &tpl=`row`]] after');
+  const value = tokensWithScope(tokenized, 'string.other').map((token) => token.text).join('');
+  assert.equal(value, '`row`');
+  const after = tokenized[0].tokens.filter((token) => token.text === ' after');
+  assert.equal(after.length, 1, 'the text after the tag went missing');
+  assert.equal(
+    after[0].scopes.some((scope) => scope.startsWith('meta.tag')),
+    false,
+    'the tag did not end'
+  );
+});
+
 test('a legal multi-line tag is not broken', async () => {
   const tokenized = await tokenize('[[!pdoResources?\n  &parents=`5`\n  &limit=`10`\n]]\nafter');
   for (const index of [0, 1, 2, 3]) {

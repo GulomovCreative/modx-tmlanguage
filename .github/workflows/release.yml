@@ -14,6 +14,17 @@ on:
   push:
     tags: ['v*']
 
+  # Also callable by "Cut a release", which pushes the tag itself. A push made
+  # with GITHUB_TOKEN deliberately starts no workflow -- otherwise a workflow
+  # could trigger itself without end -- so that path calls this one directly
+  # instead of relying on the tag.
+  workflow_call:
+    inputs:
+      tag:
+        description: The tag to publish, for example v2.0.1
+        required: true
+        type: string
+
 permissions:
   contents: read
 
@@ -29,6 +40,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.tag || github.ref_name }}
       - uses: actions/setup-node@v7
         with:
           node-version: '22'
@@ -41,11 +54,13 @@ jobs:
       # same `npm version` run, so they can only differ if a tag was moved or
       # written by hand -- which is exactly the case worth catching.
       - name: The tag, the manifest and the changelog agree
+        env:
+          TAG: ${{ inputs.tag || github.ref_name }}
         run: |
-          VERSION="${GITHUB_REF_NAME#v}"
+          VERSION="${TAG#v}"
           MANIFEST="$(node -p 'require("./package.json").version')"
           if [ "$VERSION" != "$MANIFEST" ]; then
-            echo "Tag $GITHUB_REF_NAME does not match package.json ($MANIFEST)."
+            echo "Tag $TAG does not match package.json ($MANIFEST)."
             exit 1
           fi
           # Also the source of the release notes below: no section, no release.
@@ -64,6 +79,8 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.tag || github.ref_name }}
       - uses: actions/setup-node@v7
         with:
           node-version: '22'
@@ -94,9 +111,10 @@ jobs:
       - name: Create the GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag || github.ref_name }}
         run: |
-          VERSION="${GITHUB_REF_NAME#v}"
+          VERSION="${TAG#v}"
           node scripts/release-notes.js "$VERSION" > release-notes.md
-          gh release create "$GITHUB_REF_NAME" \
-            --title "$GITHUB_REF_NAME" \
+          gh release create "$TAG" \
+            --title "$TAG" \
             --notes-file release-notes.md

@@ -125,6 +125,17 @@ test('import by package name gives the same path', () => {
   assert.equal(out, 'ok');
 });
 
+test('the language configuration is reachable by subpath', () => {
+  // The other half of editor support: without it an editor has no bracket
+  // matching on [[ ]] and no comment command. It is only reachable through this
+  // subpath, so a broken exports map makes it invisible.
+  const out = runInConsumer(consumerDir, `
+    const config = require(${JSON.stringify(PACKAGE_NAME + '/language-configuration.json')});
+    console.log([Array.isArray(config.brackets), Boolean(config.comments.blockComment)].join(' '));
+  `);
+  assert.equal(out, 'true true');
+});
+
 test('the grammar file itself is reachable by subpath', () => {
   const out = runInConsumer(consumerDir, `
     const grammar = require(${JSON.stringify(PACKAGE_NAME + '/modx.tmLanguage.json')});
@@ -286,6 +297,7 @@ const EXPECTED_FILES = [
   'LICENSE',
   'README.md',
   'index.js',
+  'language-configuration.json',
   'modx.tmLanguage.json',
   'package.json',
 ];

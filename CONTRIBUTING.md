@@ -45,6 +45,16 @@ Tests come in three layers, and a change usually touches more than one:
   JavaScript grammars from Shiki to cover tags inside attributes, `<style>` and
   `<script>`. They are kept apart from the snapshots so that a third-party
   grammar update cannot rewrite every snapshot in the repository.
+- **Language configuration tests** in `test/language-configuration.test.js` put
+  the comment markers and delimiters the editor would insert back through the
+  grammar. The two can disagree, and nothing else would notice.
+- **Preview tests** in `test/preview.test.js` re-render `docs/preview.tpl`
+  through real editor themes. Run `npm run preview:update` after an intended
+  change and read the diff: it is the colour of every token in the sample.
+- **The performance guard** in `test/performance.test.js` holds tokenization of
+  awkward input to a time budget.
+- **Fuzz tests** in `test/fuzz.test.js` generate templates from a fixed seed.
+  `FUZZ_SEED` re-runs a failing set; `FUZZ_CASES` changes how many are tried.
 
 The workflow:
 
@@ -81,11 +91,16 @@ If a change is risky — anything touching where a tag or comment begins and end
 
 ## Releasing
 
-Releases go out from `master` with one command:
+Releases go out from `master` either from the Actions tab — run the **Cut a
+release** workflow and choose patch, minor or major — or with one command:
 
 ``` sh
 npm run publish:major   # or publish:minor / publish:patch
 ```
+
+Both do the same work; the workflow simply does it on a runner. It needs the
+account Actions push as to be allowed to push to `master`, which on a protected
+branch means a bypass entry in the ruleset.
 
 That runs `npm version`, which bumps `package.json`, closes the changelog,
 commits, tags and pushes. Publishing itself happens in GitHub Actions: the
