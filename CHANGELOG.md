@@ -25,9 +25,6 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Fuzz checks over generated templates, holding three rules: markup carrying no
   tag stays with the host grammar, a closed tag does not colour what follows it,
   and nothing unterminated survives a blank line.
-- A **Cut a release** workflow: choosing patch, minor or major on the Actions
-  tab now does everything `npm version` does locally. The command-line route is
-  unchanged.
 
 ### Fixed
 
