@@ -19,7 +19,7 @@
     "index.js"
   ],
   "scripts": {
-    "test": "node --test test/grammar.test.js test/language-configuration.test.js test/package.test.js test/release.test.js test/embedded.test.js test/preview.test.js test/fuzz.test.js test/performance.test.js",
+    "test": "node --test test/grammar.test.js test/language-configuration.test.js test/indentation.test.js test/package.test.js test/line-endings.test.js test/release.test.js test/embedded.test.js test/preview.test.js test/fuzz.test.js test/performance.test.js",
     "test:update": "node test/snapshot.js",
     "preview:update": "node scripts/theme-preview.js",
     "prepublishOnly": "npm test",

@@ -58,8 +58,9 @@ grammar.scopeName; // "text.html.modx"
 
 The package also ships a language configuration — the half of editor support
 that is not colour. It pairs `[[` with `]]` for bracket matching and selection,
-tells the comment command to write `[[- … ]]`, and closes backticks and quotes
-as you type:
+tells the comment command to write `[[- … ]]`, closes backticks and quotes as
+you type, and indents the properties of a snippet call written over several
+lines:
 
 ``` js
 const config = require('@gulomov/modx-tmlanguage/language-configuration.json');
@@ -230,11 +231,15 @@ Contributors should read [CONTRIBUTING.md](CONTRIBUTING.md) — in particular th
 rule that MODX's own parser, not documentation or community advice, settles what
 the grammar should accept.
 
-Four further suites cover what snapshots cannot:
+Six further suites cover what snapshots cannot:
 
 - **Language configuration** — the comment marker the editor would insert is put
   through the grammar, because a marker the editor writes and the grammar does
   not recognise is worse than none.
+- **Indentation** — a template is stripped of its indentation and re-indented
+  by the rules in `language-configuration.json`, and has to come back exactly
+  as it was. The rules are line patterns, so the only way to know what they do
+  to a real template is to run them over one.
 - **Previews** — the images above are re-rendered through real themes and
   compared with the committed SVGs. This is the only check that can see a scope
   no theme colours.
@@ -246,6 +251,12 @@ Four further suites cover what snapshots cannot:
   follows it, and nothing unterminated survives a blank line. The last one found
   a real gap: a backticked value had no terminator and coloured the rest of the
   file.
+- **Line endings** — the package is built with `npm pack` and every file in
+  the archive is checked for CR. It reads the archive rather than the working
+  tree, because the working tree is what it is guarding: `npm pack` packs it
+  verbatim, so a checkout that hands out CRLF publishes CRLF. On Linux this
+  cannot fail, which is the point of running it before every publish — the
+  machine cutting the release is the only one where it can.
 
 After an intentional grammar change, regenerate the snapshots and the previews,
 and review both diffs before committing:
