@@ -1,17 +1,17 @@
 'use strict';
 
-// Запускается npm-ом между подъёмом версии в package.json и созданием
-// коммита с тегом. Здесь уже известен номер выпускаемой версии, поэтому это
-// единственное место, где можно привести CHANGELOG в соответствие с ней.
+// Runs between the version bump in package.json and the commit npm makes for
+// it. The number being released is known here and nowhere earlier, which makes
+// this the one place that can bring the changelog in line with it.
 //
-// Скрипт закрывает раздел «Unreleased»: переименовывает его в раздел версии
-// с датой, заводит новый пустой Unreleased и правит ссылки внизу файла.
-// Раньше это описывалось в CONTRIBUTING как ручная работа, и держалось только
-// на внимательности: забытая или наполовину сделанная правка обнаруживалась
-// уже после публикации, а версию в npm не отозвать.
+// What it does is close the Unreleased section: rename it to the version with
+// today's date, open a fresh empty Unreleased above it, and rewrite the link
+// definitions at the foot of the file. That was four manual steps, any one of
+// which is easy to forget, and a forgotten one surfaces after publication --
+// when the version can no longer be taken back.
 //
-// Изменённый файл добавляется в индекс — npm включает в коммит версии всё,
-// что скрипт этого этапа успел проиндексировать.
+// The rewritten file is staged: npm puts whatever this script stages into the
+// version commit.
 
 const fs = require('fs');
 const path = require('path');
@@ -20,16 +20,16 @@ const { execFileSync } = require('child_process');
 const ROOT = path.resolve(__dirname, '..');
 
 /**
- * Есть ли в CHANGELOG раздел для этой версии. Вынесено отдельно ради тестов:
- * проверять формат заголовка, не выпуская настоящую версию, иначе нечем.
+ * Whether the changelog has a section for this version. Separate from the file
+ * handling so the heading format can be tested without cutting a release.
  */
 function changelogHasVersion(changelog, version) {
-  // Заголовок вида «## [2.0.0] — 2026-09-11» или просто «## [2.0.0]».
+  // A heading like "## [2.1.0] — 2026-09-12", or just "## [2.1.0]".
   const heading = new RegExp('^## \\[' + version.replace(/\./g, '\\.') + '\\]', 'm');
   return heading.test(changelog);
 }
 
-/** Остались ли под Unreleased незаписанные пункты. */
+/** Whether anything is left written under Unreleased. */
 function unreleasedIsEmpty(changelog) {
   const match = changelog.match(/^## \[Unreleased\]\s*\n([\s\S]*?)(?=^## \[)/m);
   if (!match) return true;
@@ -37,30 +37,29 @@ function unreleasedIsEmpty(changelog) {
 }
 
 /**
- * Переносит содержимое Unreleased в раздел выпускаемой версии.
+ * Moves what is under Unreleased into a section for the version being released.
+ * A pure function over the file's text, so every shape of changelog it has to
+ * cope with can be tested without publishing anything. Returns the new text.
  *
- * Чистая функция над текстом файла: так её можно проверить на всех формах
- * changelog-а, не выпуская настоящих версий. Возвращает новый текст.
- *
- * Ссылки внизу файла правятся вместе с заголовками. Это половина работы,
- * которую легче всего забыть: заголовок «## [2.1.0]» без определения ссылки
- * остаётся в Markdown просто текстом в скобках, и ни одна проверка в
- * репозитории этого не замечает.
+ * The link definitions at the foot are rewritten along with the headings. They
+ * are the half of the job that is easiest to forget: a "## [2.1.0]" heading
+ * with no definition behind it is, in Markdown, just text in brackets, and
+ * nothing in the repository notices.
  */
 function closeUnreleased(changelog, version, date) {
   const heading = /^## \[Unreleased\][^\n]*\n/m;
   if (!heading.test(changelog)) {
-    throw new Error('в CHANGELOG.md нет раздела «## [Unreleased]»');
+    throw new Error('CHANGELOG.md has no "## [Unreleased]" section');
   }
 
-  // Ссылка Unreleased несёт предыдущий тег: именно от него ведётся диапазон
-  // сравнения для выпускаемой версии.
+  // The Unreleased link carries the previous tag, which is the start of the
+  // comparison range for the version being released.
   const link = /^\[Unreleased\]:[ \t]*(\S+)\/compare\/(\S+)\.\.\.HEAD[ \t]*$/m;
   const parsed = changelog.match(link);
   if (!parsed) {
     throw new Error(
-      'внизу CHANGELOG.md нет ссылки вида «[Unreleased]: <url>/compare/<тег>...HEAD» — ' +
-      'без неё не из чего собрать диапазон сравнения для новой версии'
+      'CHANGELOG.md has no "[Unreleased]: <url>/compare/<tag>...HEAD" definition at the ' +
+      'foot — there is nothing to build the new version\'s comparison range from'
     );
   }
 
@@ -75,7 +74,7 @@ function closeUnreleased(changelog, version, date) {
     );
 }
 
-/** Сегодняшняя дата по местному времени, в формате ГГГГ-ММ-ДД. */
+/** Today's date in local time, as YYYY-MM-DD. */
 function today(now = new Date()) {
   const pad = (value) => String(value).padStart(2, '0');
   return now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate());
@@ -86,13 +85,13 @@ function main() {
   const changelogPath = path.join(ROOT, 'CHANGELOG.md');
   const changelog = fs.readFileSync(changelogPath, 'utf8');
 
-  // Раздел уже закрыт вручную — оставляем как есть: переписывать чужую правку
-  // хуже, чем ничего не делать.
+  // Already closed by hand: leave it alone. Rewriting someone's edit is worse
+  // than doing nothing.
   if (changelogHasVersion(changelog, version)) {
     if (!unreleasedIsEmpty(changelog)) {
       console.warn(
-        '\nПредупреждение: под «## [Unreleased]» остались записи — они не войдут\n' +
-        'в описание версии ' + version + '. Если это не задумано, перенесите их.\n'
+        '\nWarning: entries are left under "## [Unreleased]" — they will not be part\n' +
+        'of the description of ' + version + '. Move them if that is not intended.\n'
       );
     }
     return;
@@ -100,8 +99,8 @@ function main() {
 
   if (unreleasedIsEmpty(changelog)) {
     console.error(
-      '\nРелиз остановлен: под «## [Unreleased]» в CHANGELOG.md ничего нет.\n\n' +
-      '  Выпускать нечего, либо изменения не описаны. Опишите их и запустите снова.\n'
+      '\nRelease stopped: nothing is written under "## [Unreleased]" in CHANGELOG.md.\n\n' +
+      '  Either there is nothing to release, or the changes are undescribed.\n'
     );
     process.exit(1);
   }
@@ -110,13 +109,13 @@ function main() {
   try {
     updated = closeUnreleased(changelog, version, today());
   } catch (error) {
-    console.error('\nРелиз остановлен: ' + error.message + '.\n');
+    console.error('\nRelease stopped: ' + error.message + '.\n');
     process.exit(1);
   }
 
   fs.writeFileSync(changelogPath, updated);
   execFileSync('git', ['add', '--', changelogPath], { cwd: ROOT });
-  console.log('CHANGELOG.md: раздел Unreleased закрыт как ' + version + '.');
+  console.log('CHANGELOG.md: the Unreleased section was closed as ' + version + '.');
 }
 
 if (require.main === module) main();

@@ -4,34 +4,35 @@ on:
   push:
     branches: [master]
   pull_request:
-  # Тесты идут поверх сторонних грамматик (shiki, vscode-textmate), и те живут
-  # своей жизнью. package-lock закрепляет версии, поэтому их обновление видно
-  # только в PR от dependabot — раз в месяц. Еженедельный прогон на свежих
-  # версиях показывает поломку раньше и отдельно от изменений в коде.
+  # The tests run over third-party grammars (shiki, vscode-textmate), which are
+  # released on their own schedule. package-lock pins them, so a breaking
+  # release is invisible until dependabot opens its monthly pull request. A
+  # weekly run on the newest versions shows it earlier, and separately from any
+  # change of ours.
   schedule:
     - cron: '0 6 * * 1'
   workflow_dispatch:
 
-# Workflow только читает репозиторий: ни публикаций, ни комментариев, ни
-# записи в ветки. Явное указание закрывает запись на случай, если права по
-# умолчанию в настройках репозитория окажутся шире.
+# The workflow only reads the repository: nothing is published, commented on or
+# written back. Saying so explicitly closes write access down in case the
+# repository's default permissions are wider.
 permissions:
   contents: read
 
-# Новый пуш в ту же ветку отменяет предыдущий прогон: держать очередь
-# проверок для кода, который уже неактуален, незачем.
+# A new push to the same branch cancels the previous run: there is no point
+# holding a queue of checks for code that is already superseded.
 #
-# На master отмена не применяется. Там каждый коммит — состояние, из
-# которого может уйти релиз, и его результат должен быть известен. Без
-# этого условия быстрые мержи подряд отменяют проверку промежуточных
-# коммитов, и в истории остаются коммиты со статусом cancelled.
+# master is exempt. Every commit there is a state a release can be cut from, so
+# its result has to be known; without the condition, quick successive merges
+# would cancel the checks for the commits in between and leave them cancelled in
+# the history.
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
 
 jobs:
   test:
-    name: Тесты (Node ${{ matrix.node }})
+    name: Tests (Node ${{ matrix.node }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -47,7 +48,7 @@ jobs:
       - run: npm test
 
   package:
-    name: Содержимое пакета
+    name: Package contents
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -56,18 +57,19 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci
-      # Тесты проверяют, что установленный пакет работает. Этот файл — что в
-      # него попадает ровно то, что задумано. Он входит и в npm test, то есть
-      # идёт на всех версиях Node; отдельным job-ом он остаётся потому, что
-      # это отдельная проверка с собственным именем в списке статусов.
-      - name: Сверить состав тарбола
+      # The tests check that the installed package works. This file checks that
+      # it holds exactly what was intended. It runs inside npm test as well, on
+      # every version of Node above; it is a job of its own so that it reports
+      # under its own name, because it is the check standing between a mistake
+      # and an irreversible publish.
+      - name: Check what gets published
         run: node --test test/package.test.js
 
   fresh-deps:
-    name: Свежие зависимости
-    # Только по расписанию и по кнопке: на каждый PR это ставило бы проверку в
-    # зависимость от чужих релизов, и красный статус означал бы не то, что с
-    # изменением что-то не так.
+    name: Newest dependencies
+    # Only on a schedule and on demand. On every pull request this would make
+    # the checks depend on other people's releases, and a red result would mean
+    # something other than "this change is wrong".
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
@@ -75,8 +77,7 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: '22'
-      # Без package-lock: ставятся самые свежие версии, разрешённые диапазонами
-      # в package.json. Именно то, что получит человек, клонировавший репозиторий
-      # сегодня.
+      # No package-lock: this installs the newest versions the ranges in
+      # package.json allow -- what someone cloning the repository today gets.
       - run: npm install --no-package-lock --no-audit --no-fund
       - run: npm test

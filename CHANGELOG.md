@@ -17,6 +17,14 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Every release now gets a GitHub release with the changelog section for that
   version as its body. Previously tags were pushed without one.
 
+### Internal
+
+- Comments, test names and CI step names are in English throughout. The
+  repository had two languages in it depending on which file you opened; the
+  documentation was already English, and now the code that explains itself is
+  too. No behaviour changed — but the CI job names did, so branch protection
+  rules naming the old ones need updating.
+
 ## [2.0.0] — 2026-09-12
 
 A major release for three independent reasons: the package moved to a scoped

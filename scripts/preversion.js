@@ -1,9 +1,10 @@
 'use strict';
 
-// Проверки перед npm version. Нужны потому, что postversion публикует то,
-// что сейчас в рабочем дереве, и отправляет текущую ветку: запуск не с
-// master выложил бы в npm содержимое случайной ветки, а отменить
-// опубликованную версию нельзя.
+// Checks that run before `npm version`. They exist because the release pushes
+// whatever is checked out: `npm version` bumps the manifest, commits, tags and
+// pushes the current branch, and the pushed tag is what the release workflow
+// publishes. Running it from the wrong branch would put that branch's contents
+// on npm, and a published version cannot be taken back.
 
 const { execFileSync } = require('child_process');
 
@@ -14,10 +15,10 @@ function git(...args) {
 }
 
 /**
- * Разбирает вывод git status --porcelain. Вынесено отдельно и не использует
- * git(): тот обрезает пробелы по краям всего вывода, а у строки состояния
- * первый символ значим и часто является пробелом (" M file" — изменён, но не
- * добавлен в индекс), так что обрезка съедала бы первую букву имени файла.
+ * Parses `git status --porcelain`. Kept out of git() above, which trims the
+ * whole output: the first character of a status line is significant and is
+ * often a space (" M file" is modified but unstaged), so trimming would eat
+ * the first letter of the file name.
  */
 function parseStatus(raw) {
   return raw
@@ -27,32 +28,32 @@ function parseStatus(raw) {
 }
 
 /**
- * Чистая проверка состояния — вынесена отдельно, чтобы её можно было
- * протестировать без подготовки настоящего репозитория.
- * Возвращает список причин, по которым релиз запускать нельзя.
+ * The state check as a pure function, so it can be tested without building a
+ * repository in each of the states it is meant to refuse. Returns the reasons
+ * the release must not start; an empty list means it may.
  */
 function releaseBlockers({ branch, dirtyFiles, behindCount }) {
   const blockers = [];
 
   if (branch !== RELEASE_BRANCH) {
     blockers.push(
-      'релиз собирается с ветки "' + branch + '", а не с "' + RELEASE_BRANCH + '" — ' +
-      'postversion опубликовал бы содержимое этой ветки'
+      'the release is being cut from "' + branch + '" rather than "' + RELEASE_BRANCH +
+      '" — that branch\'s contents would be published'
     );
   }
 
   if (dirtyFiles.length > 0) {
     blockers.push(
-      'в рабочем дереве есть незакоммиченные изменения (' + dirtyFiles.length + '), ' +
-      'они попали бы в пакет: ' + dirtyFiles.slice(0, 5).join(', ') +
-      (dirtyFiles.length > 5 ? ' и ещё ' + (dirtyFiles.length - 5) : '')
+      'the working tree has uncommitted changes (' + dirtyFiles.length + '), ' +
+      'and they would go into the package: ' + dirtyFiles.slice(0, 5).join(', ') +
+      (dirtyFiles.length > 5 ? ' and ' + (dirtyFiles.length - 5) + ' more' : '')
     );
   }
 
   if (behindCount > 0) {
     blockers.push(
-      'локальная ветка отстаёт от origin/' + RELEASE_BRANCH + ' на ' + behindCount +
-      ' коммит(ов) — часть изменений не попала бы в релиз'
+      'the local branch is ' + behindCount + ' commit(s) behind origin/' + RELEASE_BRANCH +
+      ' — part of the work would be left out of the release'
     );
   }
 
@@ -70,9 +71,9 @@ function collectState() {
     execFileSync('git', ['fetch', 'origin', RELEASE_BRANCH], { stdio: 'ignore' });
     behindCount = Number(git('rev-list', '--count', 'HEAD..origin/' + RELEASE_BRANCH));
   } catch (error) {
-    // Без сети отставание проверить нельзя. Это не повод блокировать релиз,
-    // но молчать об этом тоже неправильно.
-    console.warn('preversion: не удалось сверить с origin — проверка отставания пропущена');
+    // Offline, so how far behind the branch is cannot be known. That is not a
+    // reason to block the release, but it is not a reason to stay quiet either.
+    console.warn('preversion: could not reach origin — the behind check was skipped');
   }
 
   return { branch, dirtyFiles, behindCount };
@@ -82,9 +83,9 @@ function main() {
   const blockers = releaseBlockers(collectState());
   if (blockers.length === 0) return;
 
-  console.error('\nРелиз остановлен:\n');
+  console.error('\nRelease stopped:\n');
   for (const blocker of blockers) console.error('  • ' + blocker);
-  console.error('\nИсправьте и запустите снова.\n');
+  console.error('\nFix the above and run it again.\n');
   process.exit(1);
 }
 

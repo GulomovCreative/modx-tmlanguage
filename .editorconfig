@@ -8,8 +8,8 @@ trim_trailing_whitespace = true
 indent_style = space
 indent_size = 2
 
-# Фикстуры — это образцы реального кода: отступы и пробелы в них значимы,
-# в том числе на концах строк, и их правка меняет снапшоты.
+# Fixtures are samples of real templates: their whitespace is significant,
+# trailing whitespace included, and editing it changes the snapshots.
 [test/fixtures/**]
 trim_trailing_whitespace = false
 

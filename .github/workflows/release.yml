@@ -82,10 +82,11 @@ jobs:
       # on npmjs.com. That configuration is a one-off manual step -- see
       # CONTRIBUTING.md -- and without it this step fails with 404 or E401.
       #
-      # --provenance attaches a signed statement of which workflow, repository
-      # and commit built the tarball; npm shows it on the package page.
+      # No --provenance either: publishing this way generates and publishes the
+      # provenance attestation on its own. It states which repository, workflow
+      # and commit built the tarball, and npm shows it on the package page.
       - name: Publish
-        run: npm publish --provenance
+        run: npm publish
 
       # The release notes are the changelog section for this version. Writing
       # them here again by hand would be a second description of the same

@@ -1,8 +1,8 @@
 'use strict';
 
-// Перегенерация снапшотов: npm run test:update
-// Снапшоты коммитятся, их диff в PR показывает, как правка грамматики
-// повлияла на разметку.
+// Regenerating the snapshots: npm run test:update
+// Snapshots are committed, and their diff in a pull request shows what a change
+// to the grammar did to the tokenization.
 
 const fs = require('fs');
 const path = require('path');
@@ -32,7 +32,7 @@ async function main() {
   for (const name of fixtureNames()) {
     const snapshot = await buildSnapshot(name);
     fs.writeFileSync(snapshotPathFor(name), snapshot);
-    console.log('обновлён ' + path.relative(process.cwd(), snapshotPathFor(name)));
+    console.log('updated ' + path.relative(process.cwd(), snapshotPathFor(name)));
   }
 }
 

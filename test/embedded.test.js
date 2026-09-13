@@ -1,10 +1,9 @@
 'use strict';
 
-// Поведение MODX-тегов внутри вложенных языков: значений HTML-атрибутов,
-// <style> и <script>. Это единственная область, которую раньше нельзя было
-// проверить — text.html.basic не публикуется отдельным пакетом. Набор Shiki
-// содержит те же грамматики, что использует VS Code, поэтому проверка стала
-// возможна.
+// MODX tags inside embedded languages: HTML attribute values, <style> and
+// <script>. This is the one area that could not be checked before --
+// text.html.basic is not published as a package of its own. Shiki's set holds
+// the same grammars VS Code uses, which is what makes the check possible.
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
@@ -14,10 +13,10 @@ const { tokenize, tokensWithScope } = require('./tokenize');
 const embedded = (source) => tokenize(source, { embedded: true });
 
 /**
- * Токены, размеченные именно грамматикой MODX. Проверять по префиксу scope
- * нельзя: у HTML есть свои meta.tag.* — например meta.tag.metadata.script
- * у самого тега <script>, — и они дают ложное совпадение.
- * Корневой text.html.modx тоже не в счёт: он стоит на каждом токене.
+ * The tokens this grammar itself marked up. Matching on a scope prefix will
+ * not do: HTML has meta.tag.* of its own -- meta.tag.metadata.script on the
+ * <script> tag, for one -- and those match falsely. The root text.html.modx
+ * does not count either: it sits on every token.
  */
 function modxTokens(tokenized) {
   return tokenized
@@ -27,17 +26,17 @@ function modxTokens(tokenized) {
     );
 }
 
-test('вложенные грамматики действительно подключаются', async () => {
-  // Если бы HTML-грамматика не разрешалась, следующие тесты проверяли бы
-  // не то, что заявляют: разметка осталась бы просто текстом.
-  const tokenized = await embedded('<div class="a">текст</div>');
+test('the embedded grammars really do load', async () => {
+  // If the HTML grammar did not resolve, the tests below would be checking
+  // something other than what they claim: the markup would be plain text.
+  const tokenized = await embedded('<div class="a">text</div>');
   const htmlScopes = tokenized[0].tokens.flatMap((token) => token.scopes)
     .filter((scope) => scope.endsWith('.html'));
-  assert.ok(htmlScopes.length > 0, 'грамматика HTML не подключилась');
+  assert.ok(htmlScopes.length > 0, 'the HTML grammar did not load');
 });
 
-test('тег в значении HTML-атрибута подсвечивается', async () => {
-  const tokenized = await embedded('<a href="[[~12]]" class="[[+cls]]">ссылка</a>');
+test('a tag in an HTML attribute value is highlighted', async () => {
+  const tokenized = await embedded('<a href="[[~12]]" class="[[+cls]]">link</a>');
   assert.deepEqual(
     tokensWithScope(tokenized, 'constant.other.link').map((t) => t.text),
     ['12']
@@ -48,7 +47,7 @@ test('тег в значении HTML-атрибута подсвечивает�
   );
 });
 
-test('тег внутри <style> подсвечивается', async () => {
+test('a tag inside <style> is highlighted', async () => {
   const tokenized = await embedded('<style>\n.box { color: [[++brand_color]]; }\n</style>');
   assert.deepEqual(
     tokensWithScope(tokenized, 'variable.other.setting').map((t) => t.text),
@@ -56,7 +55,7 @@ test('тег внутри <style> подсвечивается', async () => {
   );
 });
 
-test('тег внутри строки в <script> подсвечивается', async () => {
+test('a tag inside a string in <script> is highlighted', async () => {
   const tokenized = await embedded('<script>\nvar id = "[[*id]]";\n</script>');
   assert.deepEqual(
     tokensWithScope(tokenized, 'variable.other.resource').map((t) => t.text),
@@ -64,27 +63,27 @@ test('тег внутри строки в <script> подсвечивается'
   );
 });
 
-// Известное ограничение, а не недосмотр.
+// A known limitation, not an oversight.
 //
-// Голый тег в коде JavaScript не подсвечивается: грамматика JS разбирает
-// «[[» как начало вложенного литерала массива и выигрывает у инъекции.
-// Проверено, что добавление инъекции в source.js этого не меняет, и что
-// ограничение существовало до всех недавних правок грамматики.
+// A bare tag in JavaScript code is not highlighted: the JS grammar reads "[["
+// as the start of a nested array literal and wins against the injection. Adding
+// an injection targeted at source.js was tried and does not change it, and the
+// limitation predates every recent change to the grammar.
 //
-// Практически это задевает только вставку значений в код без кавычек
-// (var n = [[+count]];). Внутри строк — самый частый случай в шаблонах —
-// подсветка работает, что закреплено тестом выше.
+// In practice this only affects values pasted into code unquoted
+// (var n = [[+count]];). Inside strings -- much the commoner case in templates
+// -- highlighting works, which the test above pins down.
 //
-// Тест держит границу зафиксированной: если инъекция когда-нибудь начнёт
-// выигрывать, он упадёт и об этом станет известно.
-test('голый тег в коде JavaScript не подсвечивается (известное ограничение)', async () => {
+// This test holds the boundary where it is: if the injection ever starts
+// winning, it fails and that becomes known.
+test('a bare tag in JavaScript code is not highlighted (known limitation)', async () => {
   const tokenized = await embedded('<script>\nvar n = [[+count]];\n</script>');
   assert.deepEqual(
     modxTokens(tokenized).map((token) => token.text),
     [],
-    'поведение изменилось — ограничение снято, обновите README и этот тест'
+    'the behaviour changed -- the limitation is gone, update the README and this test'
   );
-  // При этом JS-грамматика работает: токены разобраны, просто как массив.
+  // The JS grammar is working, though: the tokens are parsed, just as an array.
   const jsScopes = tokenized[1].tokens.flatMap((t) => t.scopes).filter((s) => s.endsWith('.js'));
-  assert.ok(jsScopes.length > 0, 'грамматика JS не подключилась — тест проверяет не то');
+  assert.ok(jsScopes.length > 0, 'the JS grammar did not load -- this test is checking the wrong thing');
 });

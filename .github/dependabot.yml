@@ -1,13 +1,13 @@
 version: 2
 updates:
-  # Движок токенизации, на котором держатся все тесты грамматики.
+  # The tokenizer every grammar test here runs on.
   - package-ecosystem: npm
     directory: /
     schedule:
       interval: monthly
     open-pull-requests-limit: 3
 
-  # Экшены в CI закреплены по мажорной версии и сами не обновляются.
+  # Actions in CI are pinned to a major version and do not move on their own.
   - package-ecosystem: github-actions
     directory: /
     schedule:

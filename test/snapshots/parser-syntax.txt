@@ -17,7 +17,7 @@ line 2: "[[!Snippet? &amp;limit=`5`]]"
   "5"                          text.html.modx meta.tag.snippet.modx string.other.modx constant.numeric.modx
   "`"                          text.html.modx meta.tag.snippet.modx string.other.modx punctuation.definition.string.end.modx
   "]]"                         text.html.modx meta.tag.snippet.modx punctuation.definition.tag.end.modx
-line 3: "[[+ph:default=`он сказал ``привет`` вчера`]]"
+line 3: "[[+ph:default=`he said ``hello`` yesterday`]]"
   "[["                         text.html.modx meta.tag.placeholder.modx punctuation.definition.tag.begin.modx
   "+"                          text.html.modx meta.tag.placeholder.modx support.type.placeholder.modx
   "ph"                         text.html.modx meta.tag.placeholder.modx variable.other.placeholder.modx
@@ -25,11 +25,11 @@ line 3: "[[+ph:default=`он сказал ``привет`` вчера`]]"
   "default"                    text.html.modx meta.tag.placeholder.modx support.function.modifier.modx
   "="                          text.html.modx meta.tag.placeholder.modx keyword.operator.assignment.modx
   "`"                          text.html.modx meta.tag.placeholder.modx string.other.modx punctuation.definition.string.begin.modx
-  "он сказал "                 text.html.modx meta.tag.placeholder.modx string.other.modx
+  "he said "                   text.html.modx meta.tag.placeholder.modx string.other.modx
   "``"                         text.html.modx meta.tag.placeholder.modx string.other.modx constant.character.escape.modx
-  "привет"                     text.html.modx meta.tag.placeholder.modx string.other.modx
+  "hello"                      text.html.modx meta.tag.placeholder.modx string.other.modx
   "``"                         text.html.modx meta.tag.placeholder.modx string.other.modx constant.character.escape.modx
-  " вчера"                     text.html.modx meta.tag.placeholder.modx string.other.modx
+  " yesterday"                 text.html.modx meta.tag.placeholder.modx string.other.modx
   "`"                          text.html.modx meta.tag.placeholder.modx string.other.modx punctuation.definition.string.end.modx
   "]]"                         text.html.modx meta.tag.placeholder.modx punctuation.definition.tag.end.modx
 line 4: "[[!Snippet? &tpl=row &limit=5]]"
@@ -48,7 +48,7 @@ line 4: "[[!Snippet? &tpl=row &limit=5]]"
   "="                          text.html.modx meta.tag.snippet.modx keyword.operator.assignment.modx
   "5"                          text.html.modx meta.tag.snippet.modx constant.numeric.modx
   "]]"                         text.html.modx meta.tag.snippet.modx punctuation.definition.tag.end.modx
-line 5: "[[+ph:default=`значение [[*id]] внутри`]]"
+line 5: "[[+ph:default=`value [[*id]] inside`]]"
   "[["                         text.html.modx meta.tag.placeholder.modx punctuation.definition.tag.begin.modx
   "+"                          text.html.modx meta.tag.placeholder.modx support.type.placeholder.modx
   "ph"                         text.html.modx meta.tag.placeholder.modx variable.other.placeholder.modx
@@ -56,11 +56,11 @@ line 5: "[[+ph:default=`значение [[*id]] внутри`]]"
   "default"                    text.html.modx meta.tag.placeholder.modx support.function.modifier.modx
   "="                          text.html.modx meta.tag.placeholder.modx keyword.operator.assignment.modx
   "`"                          text.html.modx meta.tag.placeholder.modx string.other.modx punctuation.definition.string.begin.modx
-  "значение "                  text.html.modx meta.tag.placeholder.modx string.other.modx
+  "value "                     text.html.modx meta.tag.placeholder.modx string.other.modx
   "[["                         text.html.modx meta.tag.placeholder.modx string.other.modx meta.tag.field.modx punctuation.definition.tag.begin.modx
   "*"                          text.html.modx meta.tag.placeholder.modx string.other.modx meta.tag.field.modx support.type.field.modx
   "id"                         text.html.modx meta.tag.placeholder.modx string.other.modx meta.tag.field.modx variable.other.resource.modx
   "]]"                         text.html.modx meta.tag.placeholder.modx string.other.modx meta.tag.field.modx punctuation.definition.tag.end.modx
-  " внутри"                    text.html.modx meta.tag.placeholder.modx string.other.modx
+  " inside"                    text.html.modx meta.tag.placeholder.modx string.other.modx
   "`"                          text.html.modx meta.tag.placeholder.modx string.other.modx punctuation.definition.string.end.modx
   "]]"                         text.html.modx meta.tag.placeholder.modx punctuation.definition.tag.end.modx
