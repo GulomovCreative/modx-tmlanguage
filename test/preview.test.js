@@ -61,3 +61,16 @@ test('the sample exercises a broad part of the grammar', async () => {
     'the sample only reaches ' + scopes.size + ' scopes: ' + [...scopes].sort().join(', ')
   );
 });
+
+test('the previews keep the indentation of the sample', () => {
+  // The whitespace declaration belongs on each text element: Chromium ignores
+  // it on an ancestor, and the first version of these previews rendered every
+  // line flush left with the tokens visibly out of step.
+  for (const theme of THEMES) {
+    const svg = rendered[theme];
+    const texts = svg.match(/<text /g) || [];
+    const preserved = svg.match(/<text [^>]*xml:space="preserve"/g) || [];
+    assert.equal(preserved.length, texts.length, theme + ': a line does not preserve its whitespace');
+    assert.match(svg, /<tspan[^>]*>\s{2,}\S/, theme + ': no indented line survived — the sample is indented');
+  }
+});

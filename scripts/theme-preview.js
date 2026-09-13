@@ -33,27 +33,30 @@ function renderSvg(lines, { background, foreground }) {
   const width = Math.ceil(columns * CHAR_WIDTH + PADDING * 2);
   const height = lines.length * LINE_HEIGHT + PADDING * 2;
 
+  // One <text> per line, and the tokens flow inside it. Positioning each token
+  // at a computed x instead looks right only if the viewer's font advances
+  // exactly as assumed here; where it does not, every token sits a fraction off
+  // and the line comes apart. Flow costs the grid nothing -- the font is
+  // monospace -- and it keeps the whitespace tokens, which is what holds the
+  // indentation together.
   const body = lines
     .map((line, index) => {
-      let column = 0;
       const spans = line
-        .map((token) => {
-          const x = (PADDING + column * CHAR_WIDTH).toFixed(1);
-          column += token.content.length;
-          if (token.content.trim() === '') return '';
-          return '<tspan x="' + x + '" fill="' + (token.color || foreground) + '">' + escape(token.content) + '</tspan>';
-        })
+        .map((token) => '<tspan fill="' + (token.color || foreground) + '">' + escape(token.content) + '</tspan>')
         .join('');
       const y = (PADDING + index * LINE_HEIGHT + FONT_SIZE).toFixed(1);
-      return spans === '' ? '' : '    <text y="' + y + '">' + spans + '</text>';
+      // xml:space belongs on the text element: Chromium ignores it on an
+      // ancestor, and the leading spaces -- the indentation of the sample --
+      // are dropped. The CSS property says the same thing for renderers that
+      // prefer it.
+      return '    <text x="' + PADDING + '" y="' + y + '" xml:space="preserve" style="white-space:pre">' + spans + '</text>';
     })
-    .filter(Boolean)
     .join('\n');
 
   return [
     '<svg xmlns="http://www.w3.org/2000/svg" width="' + width + '" height="' + height + '" viewBox="0 0 ' + width + ' ' + height + '" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="' + FONT_SIZE + '">',
     '  <rect width="' + width + '" height="' + height + '" rx="8" fill="' + background + '"/>',
-    '  <g xml:space="preserve">',
+    '  <g>',
     body,
     '  </g>',
     '</svg>',
