@@ -260,6 +260,25 @@ test('the README badges point at this repository and this package', () => {
 // server was the one reporting a stray file. Here it runs with everything else,
 // including before a publish, through prepublishOnly.
 
+/**
+ * The entries of `npm pack --json` output, whichever shape npm printed.
+ *
+ * Up to npm 11 the command prints an array of entries, one per packed package.
+ * npm 12 prints an object keyed by package name instead. Both have to be read:
+ * the release workflow installs the newest npm -- trusted publishing needs
+ * 11.5.1 or later -- while everyone else runs whatever shipped with their Node.
+ *
+ * This is not a precaution. The same line in the sibling repository stopped its
+ * first release cut through the workflow: npm publish runs prepublishOnly, the
+ * suite destructured the object as an array, and nothing was published.
+ */
+function packEntries(raw) {
+  const parsed = JSON.parse(raw);
+  if (Array.isArray(parsed)) return parsed;
+  if (parsed !== null && typeof parsed === 'object') return Object.values(parsed);
+  throw new TypeError('npm pack --json printed neither an array nor an object');
+}
+
 // Written out here rather than derived from package.json: deriving it from the
 // same files field that gets edited would catch nothing. README.md, LICENSE and
 // package.json are added by npm itself, whatever files says.
@@ -272,7 +291,7 @@ const EXPECTED_FILES = [
 ];
 
 test('the tarball holds exactly the expected files', () => {
-  const [tarball] = JSON.parse(npm(['pack', '--dry-run', '--json', '--ignore-scripts'], ROOT));
+  const [tarball] = packEntries(npm(['pack', '--dry-run', '--json', '--ignore-scripts'], ROOT));
   const actual = tarball.files.map((file) => file.path).sort();
 
   assert.deepEqual(
@@ -280,4 +299,25 @@ test('the tarball holds exactly the expected files', () => {
     [...EXPECTED_FILES].sort(),
     'the contents of the package changed. If that is intended, update EXPECTED_FILES here'
   );
+});
+
+test('the pack output is read in both of the shapes npm prints', () => {
+  // npm 11 and earlier print an array; npm 12 prints an object keyed by package
+  // name. The release workflow runs the newest npm and everyone else runs an
+  // older one, so both shapes reach this code.
+  const entry = { id: 'p@1.0.0', filename: 'p-1.0.0.tgz', files: [{ path: 'index.js' }] };
+
+  const fromArray = packEntries(JSON.stringify([entry]));
+  const fromObject = packEntries(JSON.stringify({ p: entry }));
+
+  assert.deepEqual(fromArray, [entry]);
+  assert.deepEqual(fromObject, [entry]);
+  assert.deepEqual(fromArray, fromObject, 'the two shapes must read the same');
+});
+
+test('a pack output that is neither shape is an error, not an empty list', () => {
+  // Returning [] here would turn a broken npm invocation into a passing test
+  // that checked nothing.
+  assert.throws(() => packEntries('"a string"'), TypeError);
+  assert.throws(() => packEntries('42'), TypeError);
 });
