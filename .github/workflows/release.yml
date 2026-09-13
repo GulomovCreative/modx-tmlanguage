@@ -85,8 +85,18 @@ jobs:
       # No --provenance either: publishing this way generates and publishes the
       # provenance attestation on its own. It states which repository, workflow
       # and commit built the tarball, and npm shows it on the package page.
+      # Skipped when the version is already on the registry, so that a re-run
+      # after a later failure finishes the release instead of dying here on
+      # "cannot publish over the previously published version".
       - name: Publish
-        run: npm publish
+        run: |
+          NAME=$(node -p 'require("./package.json").name')
+          VERSION=$(node -p 'require("./package.json").version')
+          if npm view "$NAME@$VERSION" version > /dev/null 2>&1; then
+            echo "$NAME@$VERSION is already on the registry — nothing to publish."
+          else
+            npm publish
+          fi
 
       # The release notes are the changelog section for this version. Writing
       # them here again by hand would be a second description of the same
@@ -96,7 +106,22 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
+
+          if gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1; then
+            echo "The release for $GITHUB_REF_NAME already exists."
+            exit 0
+          fi
+
           node scripts/release-notes.js "$VERSION" > release-notes.md
-          gh release create "$GITHUB_REF_NAME" \
-            --title "$GITHUB_REF_NAME" \
-            --notes-file release-notes.md
+
+          # The API can answer with an error after having done the work: both
+          # releases cut on 2026-09-13 were created and then reported as
+          # HTTP 500, which failed the job over a release that existed. So the
+          # failure is only a failure if the release really is not there.
+          if ! gh release create "$GITHUB_REF_NAME" \
+                 --title "$GITHUB_REF_NAME" \
+                 --notes-file release-notes.md; then
+            sleep 5
+            gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1 || exit 1
+            echo "The API reported an error, but the release exists."
+          fi
